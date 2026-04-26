@@ -1,0 +1,19 @@
+# 核心依赖
+requests==2.31.0
+PyQt5==5.15.10
+pytest==7.4.3
+sphinx==7.2.6
+
+# 网络爬虫依赖
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# 代码生成和分析依赖
+astor==0.8.1
+pycodestyle==2.11.1
+
+# 安全依赖
+pyjwt==2.8.0
+
+# 跨平台支持
+platformdirs==4.1.0
