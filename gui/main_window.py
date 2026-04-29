@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget, QPushButton, QLabel, QTextEdit, QLineEdit, QFileDialog, QMessageBox, QProgressBar
-from PyQt5.QtCore import Qt
+from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget, QPushButton, QLabel, QTextEdit, QLineEdit, QFileDialog, QMessageBox, QProgressBar
+from PySide6.QtCore import Qt
 from core.project_init import ProjectInitializer
 from core.requirement_analysis import RequirementAnalyzer
 from core.resource_acquisition import ResourceAcquirer
