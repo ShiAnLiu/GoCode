@@ -208,15 +208,8 @@ def handle_gui(args):
     处理gui命令
     """
     try:
-        # 启动图形界面
-        from gui.main_window import MainWindow
-        import sys
-        from PySide6.QtWidgets import QApplication
-        
-        app = QApplication(sys.argv)
-        window = MainWindow()
-        window.show()
-        sys.exit(app.exec())
+        from gui.main_window import run
+        run()
     except Exception as e:
         print(f"启动图形界面时出错: {e}")
 

@@ -16,7 +16,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'requests==2.31.0',
-        'PyQt5==5.15.10',
+        'kivy>=2.3.0',
         'pytest==7.4.3',
         'sphinx==7.2.6',
         'beautifulsoup4==4.12.2',

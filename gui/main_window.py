@@ -1,5 +1,15 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QTabWidget, QPushButton, QLabel, QTextEdit, QLineEdit, QFileDialog, QMessageBox, QProgressBar
-from PySide6.QtCore import Qt
+from kivy.app import App
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
+from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.textinput import TextInput
+from kivy.uix.textinput import TextInput as KivyTextInput
+from kivy.uix.popup import Popup
+from kivy.uix.filechooser import FileChooserListView
+from kivy.uix.scrollview import ScrollView
+from kivy.core.window import Window
 from core.project_init import ProjectInitializer
 from core.requirement_analysis import RequirementAnalyzer
 from core.resource_acquisition import ResourceAcquirer
@@ -7,285 +17,252 @@ from core.development import DevelopmentManager
 from core.testing import TestManager
 from core.acceptance import AcceptanceManager
 
-class MainWindow(QMainWindow):
-    """
-    主窗口
-    """
-    
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle('gocode - 代码编程工具')
-        self.setGeometry(100, 100, 1000, 700)
+class MainWindow(BoxLayout):
+    def __init__(self, **kwargs):
+        super(MainWindow, self).__init__(**kwargs)
+        self.orientation = 'vertical'
+        self.padding = 10
+        self.spacing = 10
         
-        # 创建中心部件
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
+        self.tab_panel = TabbedPanel(do_default_tab=False)
+        self.add_widget(self.tab_panel)
         
-        # 创建主布局
-        main_layout = QVBoxLayout(central_widget)
-        
-        # 创建标签页
-        self.tabs = QTabWidget()
-        main_layout.addWidget(self.tabs)
-        
-        # 创建各个标签页
         self._create_init_tab()
         self._create_analyze_tab()
         self._create_acquire_tab()
         self._create_develop_tab()
         self._create_test_tab()
         self._create_accept_tab()
-        
+    
     def _create_init_tab(self):
-        """
-        创建项目初始化标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='项目初始化')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 工作空间目录
-        workspace_layout = QHBoxLayout()
-        workspace_label = QLabel('工作空间目录:')
-        self.workspace_line = QLineEdit()
-        workspace_button = QPushButton('浏览')
-        workspace_button.clicked.connect(self._browse_workspace)
-        workspace_layout.addWidget(workspace_label)
-        workspace_layout.addWidget(self.workspace_line)
-        workspace_layout.addWidget(workspace_button)
-        layout.addLayout(workspace_layout)
+        workspace_layout = BoxLayout(orientation='horizontal', spacing=10)
+        workspace_layout.add_widget(Label(text='工作空间目录:', size_hint_x=0.2))
+        self.workspace_line = TextInput(multiline=False, size_hint_x=0.6)
+        workspace_layout.add_widget(self.workspace_line)
+        workspace_button = Button(text='浏览', size_hint_x=0.2)
+        workspace_button.bind(on_press=self._browse_workspace)
+        workspace_layout.add_widget(workspace_button)
+        layout.add_widget(workspace_layout)
         
-        # 项目名称
-        project_layout = QHBoxLayout()
-        project_label = QLabel('项目名称:')
-        self.project_line = QLineEdit()
-        project_layout.addWidget(project_label)
-        project_layout.addWidget(self.project_line)
-        layout.addLayout(project_layout)
+        project_layout = BoxLayout(orientation='horizontal', spacing=10)
+        project_layout.add_widget(Label(text='项目名称:', size_hint_x=0.2))
+        self.project_line = TextInput(multiline=False, size_hint_x=0.8)
+        project_layout.add_widget(self.project_line)
+        layout.add_widget(project_layout)
         
-        # 初始化按钮
-        init_button = QPushButton('初始化项目')
-        init_button.clicked.connect(self._init_project)
-        layout.addWidget(init_button)
+        init_button = Button(text='初始化项目', size_hint_y=0.1)
+        init_button.bind(on_press=self._init_project)
+        layout.add_widget(init_button)
         
-        # 结果显示
-        self.init_result = QTextEdit()
-        self.init_result.setReadOnly(True)
-        layout.addWidget(self.init_result)
+        scroll = ScrollView()
+        self.init_result = TextInput(readonly=True, size_hint_y=None)
+        self.init_result.bind(text=lambda _, __: setattr(self.init_result, 'height', max(self.init_result.minimum_height, 200)))
+        scroll.add_widget(self.init_result)
+        layout.add_widget(scroll)
         
-        self.tabs.addTab(tab, '项目初始化')
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_analyze_tab(self):
-        """
-        创建需求分析标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='需求分析')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 需求文本
-        req_label = QLabel('需求文本:')
-        self.req_text = QTextEdit()
-        layout.addWidget(req_label)
-        layout.addWidget(self.req_text)
+        layout.add_widget(Label(text='需求文本:'))
         
-        # 分析按钮
-        analyze_button = QPushButton('分析需求')
-        analyze_button.clicked.connect(self._analyze_requirements)
-        layout.addWidget(analyze_button)
+        scroll1 = ScrollView()
+        self.req_text = TextInput(multiline=True, size_hint_y=None)
+        self.req_text.bind(text=lambda _, __: setattr(self.req_text, 'height', max(self.req_text.minimum_height, 200)))
+        scroll1.add_widget(self.req_text)
+        layout.add_widget(scroll1)
         
-        # 结果显示
-        self.analyze_result = QTextEdit()
-        self.analyze_result.setReadOnly(True)
-        layout.addWidget(self.analyze_result)
+        analyze_button = Button(text='分析需求', size_hint_y=0.1)
+        analyze_button.bind(on_press=self._analyze_requirements)
+        layout.add_widget(analyze_button)
         
-        self.tabs.addTab(tab, '需求分析')
+        scroll2 = ScrollView()
+        self.analyze_result = TextInput(readonly=True, size_hint_y=None)
+        self.analyze_result.bind(text=lambda _, __: setattr(self.analyze_result, 'height', max(self.analyze_result.minimum_height, 200)))
+        scroll2.add_widget(self.analyze_result)
+        layout.add_widget(scroll2)
+        
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_acquire_tab(self):
-        """
-        创建资源获取标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='资源获取')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 需求文本
-        req_label = QLabel('需求文本:')
-        self.acquire_req_text = QTextEdit()
-        layout.addWidget(req_label)
-        layout.addWidget(self.acquire_req_text)
+        layout.add_widget(Label(text='需求文本:'))
         
-        # 输出目录
-        output_layout = QHBoxLayout()
-        output_label = QLabel('输出目录:')
-        self.output_line = QLineEdit()
-        output_button = QPushButton('浏览')
-        output_button.clicked.connect(self._browse_output)
-        output_layout.addWidget(output_label)
-        output_layout.addWidget(self.output_line)
-        output_layout.addWidget(output_button)
-        layout.addLayout(output_layout)
+        scroll1 = ScrollView()
+        self.acquire_req_text = TextInput(multiline=True, size_hint_y=None)
+        self.acquire_req_text.bind(text=lambda _, __: setattr(self.acquire_req_text, 'height', max(self.acquire_req_text.minimum_height, 150)))
+        scroll1.add_widget(self.acquire_req_text)
+        layout.add_widget(scroll1)
         
-        # 获取资源按钮
-        acquire_button = QPushButton('获取资源')
-        acquire_button.clicked.connect(self._acquire_resources)
-        layout.addWidget(acquire_button)
+        output_layout = BoxLayout(orientation='horizontal', spacing=10)
+        output_layout.add_widget(Label(text='输出目录:', size_hint_x=0.2))
+        self.output_line = TextInput(multiline=False, size_hint_x=0.6)
+        output_layout.add_widget(self.output_line)
+        output_button = Button(text='浏览', size_hint_x=0.2)
+        output_button.bind(on_press=self._browse_output)
+        output_layout.add_widget(output_button)
+        layout.add_widget(output_layout)
         
-        # 结果显示
-        self.acquire_result = QTextEdit()
-        self.acquire_result.setReadOnly(True)
-        layout.addWidget(self.acquire_result)
+        acquire_button = Button(text='获取资源', size_hint_y=0.1)
+        acquire_button.bind(on_press=self._acquire_resources)
+        layout.add_widget(acquire_button)
         
-        self.tabs.addTab(tab, '资源获取')
+        scroll2 = ScrollView()
+        self.acquire_result = TextInput(readonly=True, size_hint_y=None)
+        self.acquire_result.bind(text=lambda _, __: setattr(self.acquire_result, 'height', max(self.acquire_result.minimum_height, 200)))
+        scroll2.add_widget(self.acquire_result)
+        layout.add_widget(scroll2)
+        
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_develop_tab(self):
-        """
-        创建开发实施标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='开发实施')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 项目目录
-        project_layout = QHBoxLayout()
-        project_label = QLabel('项目目录:')
-        self.develop_project_line = QLineEdit()
-        project_button = QPushButton('浏览')
-        project_button.clicked.connect(self._browse_project)
-        project_layout.addWidget(project_label)
-        project_layout.addWidget(self.develop_project_line)
-        project_layout.addWidget(project_button)
-        layout.addLayout(project_layout)
+        project_layout = BoxLayout(orientation='horizontal', spacing=10)
+        project_layout.add_widget(Label(text='项目目录:', size_hint_x=0.2))
+        self.develop_project_line = TextInput(multiline=False, size_hint_x=0.6)
+        project_layout.add_widget(self.develop_project_line)
+        project_button = Button(text='浏览', size_hint_x=0.2)
+        project_button.bind(on_press=self._browse_project)
+        project_layout.add_widget(project_button)
+        layout.add_widget(project_layout)
         
-        # 需求文本
-        req_label = QLabel('需求文本:')
-        self.develop_req_text = QTextEdit()
-        layout.addWidget(req_label)
-        layout.addWidget(self.develop_req_text)
+        layout.add_widget(Label(text='需求文本:'))
         
-        # 开发按钮
-        develop_button = QPushButton('开发实施')
-        develop_button.clicked.connect(self._develop)
-        layout.addWidget(develop_button)
+        scroll1 = ScrollView()
+        self.develop_req_text = TextInput(multiline=True, size_hint_y=None)
+        self.develop_req_text.bind(text=lambda _, __: setattr(self.develop_req_text, 'height', max(self.develop_req_text.minimum_height, 150)))
+        scroll1.add_widget(self.develop_req_text)
+        layout.add_widget(scroll1)
         
-        # 结果显示
-        self.develop_result = QTextEdit()
-        self.develop_result.setReadOnly(True)
-        layout.addWidget(self.develop_result)
+        develop_button = Button(text='开发实施', size_hint_y=0.1)
+        develop_button.bind(on_press=self._develop)
+        layout.add_widget(develop_button)
         
-        self.tabs.addTab(tab, '开发实施')
+        scroll2 = ScrollView()
+        self.develop_result = TextInput(readonly=True, size_hint_y=None)
+        self.develop_result.bind(text=lambda _, __: setattr(self.develop_result, 'height', max(self.develop_result.minimum_height, 200)))
+        scroll2.add_widget(self.develop_result)
+        layout.add_widget(scroll2)
+        
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_test_tab(self):
-        """
-        创建测试验证标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='测试验证')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 项目目录
-        project_layout = QHBoxLayout()
-        project_label = QLabel('项目目录:')
-        self.test_project_line = QLineEdit()
-        project_button = QPushButton('浏览')
-        project_button.clicked.connect(self._browse_test_project)
-        project_layout.addWidget(project_label)
-        project_layout.addWidget(self.test_project_line)
-        project_layout.addWidget(project_button)
-        layout.addLayout(project_layout)
+        project_layout = BoxLayout(orientation='horizontal', spacing=10)
+        project_layout.add_widget(Label(text='项目目录:', size_hint_x=0.2))
+        self.test_project_line = TextInput(multiline=False, size_hint_x=0.6)
+        project_layout.add_widget(self.test_project_line)
+        project_button = Button(text='浏览', size_hint_x=0.2)
+        project_button.bind(on_press=self._browse_test_project)
+        project_layout.add_widget(project_button)
+        layout.add_widget(project_layout)
         
-        # 测试按钮
-        test_button = QPushButton('运行测试')
-        test_button.clicked.connect(self._run_tests)
-        layout.addWidget(test_button)
+        test_button = Button(text='运行测试', size_hint_y=0.1)
+        test_button.bind(on_press=self._run_tests)
+        layout.add_widget(test_button)
         
-        # 结果显示
-        self.test_result = QTextEdit()
-        self.test_result.setReadOnly(True)
-        layout.addWidget(self.test_result)
+        scroll = ScrollView()
+        self.test_result = TextInput(readonly=True, size_hint_y=None)
+        self.test_result.bind(text=lambda _, __: setattr(self.test_result, 'height', max(self.test_result.minimum_height, 200)))
+        scroll.add_widget(self.test_result)
+        layout.add_widget(scroll)
         
-        self.tabs.addTab(tab, '测试验证')
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_accept_tab(self):
-        """
-        创建验收标签页
-        """
-        tab = QWidget()
-        layout = QVBoxLayout(tab)
+        tab = TabbedPanelItem(text='验收')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
         
-        # 项目目录
-        project_layout = QHBoxLayout()
-        project_label = QLabel('项目目录:')
-        self.accept_project_line = QLineEdit()
-        project_button = QPushButton('浏览')
-        project_button.clicked.connect(self._browse_accept_project)
-        project_layout.addWidget(project_label)
-        project_layout.addWidget(self.accept_project_line)
-        project_layout.addWidget(project_button)
-        layout.addLayout(project_layout)
+        project_layout = BoxLayout(orientation='horizontal', spacing=10)
+        project_layout.add_widget(Label(text='项目目录:', size_hint_x=0.2))
+        self.accept_project_line = TextInput(multiline=False, size_hint_x=0.6)
+        project_layout.add_widget(self.accept_project_line)
+        project_button = Button(text='浏览', size_hint_x=0.2)
+        project_button.bind(on_press=self._browse_accept_project)
+        project_layout.add_widget(project_button)
+        layout.add_widget(project_layout)
         
-        # 需求文本
-        req_label = QLabel('需求文本:')
-        self.accept_req_text = QTextEdit()
-        layout.addWidget(req_label)
-        layout.addWidget(self.accept_req_text)
+        layout.add_widget(Label(text='需求文本:'))
         
-        # 验收按钮
-        accept_button = QPushButton('生成验收报告')
-        accept_button.clicked.connect(self._generate_acceptance)
-        layout.addWidget(accept_button)
+        scroll1 = ScrollView()
+        self.accept_req_text = TextInput(multiline=True, size_hint_y=None)
+        self.accept_req_text.bind(text=lambda _, __: setattr(self.accept_req_text, 'height', max(self.accept_req_text.minimum_height, 150)))
+        scroll1.add_widget(self.accept_req_text)
+        layout.add_widget(scroll1)
         
-        # 结果显示
-        self.accept_result = QTextEdit()
-        self.accept_result.setReadOnly(True)
-        layout.addWidget(self.accept_result)
+        accept_button = Button(text='生成验收报告', size_hint_y=0.1)
+        accept_button.bind(on_press=self._generate_acceptance)
+        layout.add_widget(accept_button)
         
-        self.tabs.addTab(tab, '验收')
+        scroll2 = ScrollView()
+        self.accept_result = TextInput(readonly=True, size_hint_y=None)
+        self.accept_result.bind(text=lambda _, __: setattr(self.accept_result, 'height', max(self.accept_result.minimum_height, 200)))
+        scroll2.add_widget(self.accept_result)
+        layout.add_widget(scroll2)
+        
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
-    def _browse_workspace(self):
-        """
-        浏览工作空间目录
-        """
-        directory = QFileDialog.getExistingDirectory(self, '选择工作空间目录')
-        if directory:
-            self.workspace_line.setText(directory)
+    def _show_file_chooser(self, callback):
+        content = BoxLayout(orientation='vertical', spacing=10)
+        filechooser = FileChooserListView()
+        content.add_widget(filechooser)
+        
+        button_layout = BoxLayout(orientation='horizontal', spacing=10)
+        cancel_button = Button(text='取消')
+        select_button = Button(text='选择')
+        button_layout.add_widget(cancel_button)
+        button_layout.add_widget(select_button)
+        content.add_widget(button_layout)
+        
+        popup = Popup(title='选择目录', content=content, size_hint=(0.9, 0.9))
+        
+        cancel_button.bind(on_press=popup.dismiss)
+        select_button.bind(on_press=lambda x: [callback(filechooser.selection), popup.dismiss()])
+        
+        popup.open()
     
-    def _browse_output(self):
-        """
-        浏览输出目录
-        """
-        directory = QFileDialog.getExistingDirectory(self, '选择输出目录')
-        if directory:
-            self.output_line.setText(directory)
+    def _browse_workspace(self, instance):
+        self._show_file_chooser(lambda x: setattr(self.workspace_line, 'text', x[0]) if x else None)
     
-    def _browse_project(self):
-        """
-        浏览项目目录
-        """
-        directory = QFileDialog.getExistingDirectory(self, '选择项目目录')
-        if directory:
-            self.develop_project_line.setText(directory)
+    def _browse_output(self, instance):
+        self._show_file_chooser(lambda x: setattr(self.output_line, 'text', x[0]) if x else None)
     
-    def _browse_test_project(self):
-        """
-        浏览测试项目目录
-        """
-        directory = QFileDialog.getExistingDirectory(self, '选择项目目录')
-        if directory:
-            self.test_project_line.setText(directory)
+    def _browse_project(self, instance):
+        self._show_file_chooser(lambda x: setattr(self.develop_project_line, 'text', x[0]) if x else None)
     
-    def _browse_accept_project(self):
-        """
-        浏览验收项目目录
-        """
-        directory = QFileDialog.getExistingDirectory(self, '选择项目目录')
-        if directory:
-            self.accept_project_line.setText(directory)
+    def _browse_test_project(self, instance):
+        self._show_file_chooser(lambda x: setattr(self.test_project_line, 'text', x[0]) if x else None)
     
-    def _init_project(self):
-        """
-        初始化项目
-        """
-        workspace = self.workspace_line.text()
-        project_name = self.project_line.text()
+    def _browse_accept_project(self, instance):
+        self._show_file_chooser(lambda x: setattr(self.accept_project_line, 'text', x[0]) if x else None)
+    
+    def _show_warning(self, message):
+        popup = Popup(title='警告', content=Label(text=message), size_hint=(0.6, 0.4))
+        popup.open()
+    
+    def _init_project(self, instance):
+        workspace = self.workspace_line.text
+        project_name = self.project_line.text
         
         if not workspace or not project_name:
-            QMessageBox.warning(self, '警告', '请输入工作空间目录和项目名称')
+            self._show_warning('请输入工作空间目录和项目名称')
             return
         
         try:
@@ -293,20 +270,17 @@ class MainWindow(QMainWindow):
             success = initializer.initialize()
             
             if success:
-                self.init_result.setText(f"项目初始化成功: {workspace}/{project_name}")
+                self.init_result.text = f"项目初始化成功: {workspace}/{project_name}"
             else:
-                self.init_result.setText("项目初始化失败")
+                self.init_result.text = "项目初始化失败"
         except Exception as e:
-            self.init_result.setText(f"初始化项目时出错: {e}")
+            self.init_result.text = f"初始化项目时出错: {e}"
     
-    def _analyze_requirements(self):
-        """
-        分析需求
-        """
-        requirements = self.req_text.toPlainText()
+    def _analyze_requirements(self, instance):
+        requirements = self.req_text.text
         
         if not requirements:
-            QMessageBox.warning(self, '警告', '请输入需求文本')
+            self._show_warning('请输入需求文本')
             return
         
         try:
@@ -314,21 +288,18 @@ class MainWindow(QMainWindow):
             analysis_result = analyzer.analyze_requirements(requirements)
             
             if analysis_result.get('success'):
-                self.analyze_result.setText(f"需求分析完成\n\n{analysis_result.get('raw_analysis')}")
+                self.analyze_result.text = f"需求分析完成\n\n{analysis_result.get('raw_analysis')}"
             else:
-                self.analyze_result.setText(f"需求分析失败: {analysis_result.get('error')}")
+                self.analyze_result.text = f"需求分析失败: {analysis_result.get('error')}"
         except Exception as e:
-            self.analyze_result.setText(f"分析需求时出错: {e}")
+            self.analyze_result.text = f"分析需求时出错: {e}"
     
-    def _acquire_resources(self):
-        """
-        获取资源
-        """
-        requirements = self.acquire_req_text.toPlainText()
-        output_dir = self.output_line.text()
+    def _acquire_resources(self, instance):
+        requirements = self.acquire_req_text.text
+        output_dir = self.output_line.text
         
         if not requirements:
-            QMessageBox.warning(self, '警告', '请输入需求文本')
+            self._show_warning('请输入需求文本')
             return
         
         if not output_dir:
@@ -355,37 +326,32 @@ class MainWindow(QMainWindow):
                 if user_provided_resources:
                     output += "用户提供的资源:\n" + '\n'.join(f"- {r}" for r in user_provided_resources) + "\n"
                 
-                self.acquire_result.setText(output)
+                self.acquire_result.text = output
             else:
-                self.acquire_result.setText(f"资源获取失败: {result.get('error')}")
+                self.acquire_result.text = f"资源获取失败: {result.get('error')}"
         except Exception as e:
-            self.acquire_result.setText(f"获取资源时出错: {e}")
+            self.acquire_result.text = f"获取资源时出错: {e}"
     
-    def _develop(self):
-        """
-        开发实施
-        """
-        project_dir = self.develop_project_line.text()
-        requirements = self.develop_req_text.toPlainText()
+    def _develop(self, instance):
+        project_dir = self.develop_project_line.text
+        requirements = self.develop_req_text.text
         
         if not project_dir:
-            QMessageBox.warning(self, '警告', '请选择项目目录')
+            self._show_warning('请选择项目目录')
             return
         
         if not requirements:
-            QMessageBox.warning(self, '警告', '请输入需求文本')
+            self._show_warning('请输入需求文本')
             return
         
         try:
-            # 分析需求
             analyzer = RequirementAnalyzer()
             analysis_result = analyzer.analyze_requirements(requirements)
             
             if not analysis_result.get('success'):
-                self.develop_result.setText(f"需求分析失败: {analysis_result.get('error')}")
+                self.develop_result.text = f"需求分析失败: {analysis_result.get('error')}"
                 return
             
-            # 开发实施
             manager = DevelopmentManager(project_dir)
             result = manager.develop(analysis_result)
             
@@ -394,20 +360,17 @@ class MainWindow(QMainWindow):
                 output = f"开发实施完成\n"
                 output += f"实现的模块数: {len(modules)}\n\n"
                 output += "实现的模块:\n" + '\n'.join(f"- {m['name']}: {m['description']}" for m in modules)
-                self.develop_result.setText(output)
+                self.develop_result.text = output
             else:
-                self.develop_result.setText(f"开发实施失败: {result.get('error')}")
+                self.develop_result.text = f"开发实施失败: {result.get('error')}"
         except Exception as e:
-            self.develop_result.setText(f"开发实施时出错: {e}")
+            self.develop_result.text = f"开发实施时出错: {e}"
     
-    def _run_tests(self):
-        """
-        运行测试
-        """
-        project_dir = self.test_project_line.text()
+    def _run_tests(self, instance):
+        project_dir = self.test_project_line.text
         
         if not project_dir:
-            QMessageBox.warning(self, '警告', '请选择项目目录')
+            self._show_warning('请选择项目目录')
             return
         
         try:
@@ -424,45 +387,39 @@ class MainWindow(QMainWindow):
                 output += f"边界条件测试: {'通过' if boundary_success else '失败'}\n"
                 output += f"系统集成测试: {'通过' if integration_success else '失败'}\n\n"
                 output += "测试报告已生成: docs/test_report.md"
-                self.test_result.setText(output)
+                self.test_result.text = output
             else:
-                self.test_result.setText(f"测试执行失败: {result.get('error')}")
+                self.test_result.text = f"测试执行失败: {result.get('error')}"
         except Exception as e:
-            self.test_result.setText(f"运行测试时出错: {e}")
+            self.test_result.text = f"运行测试时出错: {e}"
     
-    def _generate_acceptance(self):
-        """
-        生成验收报告
-        """
-        project_dir = self.accept_project_line.text()
-        requirements = self.accept_req_text.toPlainText()
+    def _generate_acceptance(self, instance):
+        project_dir = self.accept_project_line.text
+        requirements = self.accept_req_text.text
         
         if not project_dir:
-            QMessageBox.warning(self, '警告', '请选择项目目录')
+            self._show_warning('请选择项目目录')
             return
         
         if not requirements:
-            QMessageBox.warning(self, '警告', '请输入需求文本')
+            self._show_warning('请输入需求文本')
             return
         
         try:
-            # 分析需求
             analyzer = RequirementAnalyzer()
             analysis_result = analyzer.analyze_requirements(requirements)
             
             if not analysis_result.get('success'):
-                self.accept_result.setText(f"需求分析失败: {analysis_result.get('error')}")
+                self.accept_result.text = f"需求分析失败: {analysis_result.get('error')}"
                 return
             
-            # 运行测试
             test_manager = TestManager(project_dir)
             test_result = test_manager.run_tests()
             
             if not test_result.get('success'):
-                self.accept_result.setText(f"测试执行失败: {test_result.get('error')}")
+                self.accept_result.text = f"测试执行失败: {test_result.get('error')}"
                 return
             
-            # 生成验收报告
             acceptance_manager = AcceptanceManager(project_dir)
             result = acceptance_manager.generate_acceptance_report(analysis_result, test_result)
             
@@ -470,8 +427,17 @@ class MainWindow(QMainWindow):
                 output = f"验收报告生成完成: {result.get('report_path')}\n"
                 output += f"验收状态: {result.get('acceptance_status')}\n\n"
                 output += "验收报告已生成: docs/acceptance_report.md"
-                self.accept_result.setText(output)
+                self.accept_result.text = output
             else:
-                self.accept_result.setText(f"生成验收报告失败: {result.get('error')}")
+                self.accept_result.text = f"生成验收报告失败: {result.get('error')}"
         except Exception as e:
-            self.accept_result.setText(f"生成验收报告时出错: {e}")
+            self.accept_result.text = f"生成验收报告时出错: {e}"
+
+class GocodeApp(App):
+    def build(self):
+        Window.size = (1000, 700)
+        self.title = 'gocode - 代码编程工具'
+        return MainWindow()
+
+def run():
+    GocodeApp().run()
