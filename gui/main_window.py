@@ -10,12 +10,14 @@ from kivy.uix.popup import Popup
 from kivy.uix.filechooser import FileChooserListView
 from kivy.uix.scrollview import ScrollView
 from kivy.core.window import Window
+from kivy.uix.spinner import Spinner
 from core.project_init import ProjectInitializer
 from core.requirement_analysis import RequirementAnalyzer
 from core.resource_acquisition import ResourceAcquirer
 from core.development import DevelopmentManager
 from core.testing import TestManager
 from core.acceptance import AcceptanceManager
+from utils.api_config import APIConfig, APIProvider
 
 class MainWindow(BoxLayout):
     def __init__(self, **kwargs):
@@ -23,6 +25,8 @@ class MainWindow(BoxLayout):
         self.orientation = 'vertical'
         self.padding = 10
         self.spacing = 10
+        
+        self.api_config = APIConfig()
         
         self.tab_panel = TabbedPanel(do_default_tab=False)
         self.add_widget(self.tab_panel)
@@ -33,6 +37,59 @@ class MainWindow(BoxLayout):
         self._create_develop_tab()
         self._create_test_tab()
         self._create_accept_tab()
+        self._create_settings_tab()
+    
+    def _create_settings_tab(self):
+        tab = TabbedPanelItem(text='API设置')
+        layout = BoxLayout(orientation='vertical', padding=10, spacing=10)
+        
+        provider_layout = BoxLayout(orientation='horizontal', spacing=10)
+        provider_layout.add_widget(Label(text='API提供商:', size_hint_x=0.3))
+        self.provider_spinner = Spinner(
+            text=self.api_config.get_provider(),
+            values=['lmstudio', 'ollama', 'openai', 'anthropic', 'custom'],
+            size_hint_x=0.7
+        )
+        self.provider_spinner.bind(text=self._on_provider_changed)
+        provider_layout.add_widget(self.provider_spinner)
+        layout.add_widget(provider_layout)
+        
+        base_url_layout = BoxLayout(orientation='horizontal', spacing=10)
+        base_url_layout.add_widget(Label(text='API地址:', size_hint_x=0.3))
+        self.base_url_input = TextInput(multiline=False, size_hint_x=0.7)
+        base_url_layout.add_widget(self.base_url_input)
+        layout.add_widget(base_url_layout)
+        
+        model_layout = BoxLayout(orientation='horizontal', spacing=10)
+        model_layout.add_widget(Label(text='模型名称:', size_hint_x=0.3))
+        self.model_input = TextInput(multiline=False, size_hint_x=0.7)
+        model_layout.add_widget(self.model_input)
+        layout.add_widget(model_layout)
+        
+        api_key_layout = BoxLayout(orientation='horizontal', spacing=10)
+        api_key_layout.add_widget(Label(text='API密钥:', size_hint_x=0.3))
+        self.api_key_input = TextInput(multiline=False, password=True, size_hint_x=0.7)
+        api_key_layout.add_widget(self.api_key_input)
+        layout.add_widget(api_key_layout)
+        
+        save_button = Button(text='保存设置', size_hint_y=0.1)
+        save_button.bind(on_press=self._save_settings)
+        layout.add_widget(save_button)
+        
+        test_button = Button(text='测试连接', size_hint_y=0.1)
+        test_button.bind(on_press=self._test_connection)
+        layout.add_widget(test_button)
+        
+        scroll = ScrollView()
+        self.settings_result = TextInput(readonly=True, size_hint_y=None)
+        self.settings_result.bind(text=lambda _, __: setattr(self.settings_result, 'height', max(self.settings_result.minimum_height, 100)))
+        scroll.add_widget(self.settings_result)
+        layout.add_widget(scroll)
+        
+        self._load_settings()
+        
+        tab.add_widget(layout)
+        self.tab_panel.add_widget(tab)
     
     def _create_init_tab(self):
         tab = TabbedPanelItem(text='项目初始化')
@@ -218,6 +275,46 @@ class MainWindow(BoxLayout):
         
         tab.add_widget(layout)
         self.tab_panel.add_widget(tab)
+    
+    def _load_settings(self):
+        provider = self.api_config.get_provider()
+        provider_config = self.api_config.config.get(provider, {})
+        
+        self.base_url_input.text = provider_config.get('base_url', '')
+        self.model_input.text = provider_config.get('model', '')
+        self.api_key_input.text = provider_config.get('api_key', '')
+    
+    def _on_provider_changed(self, spinner, text):
+        self.api_config.set_provider(text)
+        self._load_settings()
+    
+    def _save_settings(self, instance):
+        provider = self.provider_spinner.text
+        
+        base_url = self.base_url_input.text
+        model = self.model_input.text
+        api_key = self.api_key_input.text
+        
+        self.api_config.set_api_config(provider, base_url=base_url, model=model, api_key=api_key)
+        self.api_config.set_provider(provider)
+        
+        self.settings_result.text = "设置已保存"
+    
+    def _test_connection(self, instance):
+        from utils.ai_client import AIClient
+        
+        try:
+            client = AIClient()
+            result = client.chat([
+                {"role": "user", "content": "你好，请回复'连接成功'"}
+            ], max_tokens=50)
+            
+            if result.get("success"):
+                self.settings_result.text = f"连接测试成功！\n响应: {result['content']}"
+            else:
+                self.settings_result.text = f"连接测试失败: {result.get('error')}"
+        except Exception as e:
+            self.settings_result.text = f"连接测试失败: {str(e)}"
     
     def _show_file_chooser(self, callback):
         content = BoxLayout(orientation='vertical', spacing=10)
