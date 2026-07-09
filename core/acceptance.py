@@ -95,7 +95,7 @@ class AcceptanceManager:
             Dict: 测试验证结果
         """
         if not test_results.get("success"):
-            return{"unit_tests": False,"boundary_tests": False,"integration_tests" : False,"all_tests": False}
+            return {"unit_tests": False, "boundary_tests": False, "integration_tests": False, "all_tests": False}
         
         unit_success = test_results.get("unit_tests", {}).get("success", False)
         boundary_success = test_results.get("boundary_tests", {}).get("success", False)
