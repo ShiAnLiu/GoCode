@@ -7,7 +7,7 @@ from core.resource_acquisition import ResourceAcquirer
 from core.development import DevelopmentManager
 from core.testing import TestManager
 from core.acceptance import AcceptanceManager
-from utils.security import SecurityManager
+
 
 def main():
     """

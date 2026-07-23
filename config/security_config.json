@@ -1,0 +1,7 @@
+{
+    "allowed_directories": [],
+    "blocked_directories": [],
+    "max_file_size": 10485760,
+    "allowed_file_extensions": [".py", ".txt", ".md", ".json", ".yaml", ".yml"],
+    "blocked_file_extensions": [".exe", ".dll", ".bat", ".sh", ".pyc", ".pyd"]
+}
