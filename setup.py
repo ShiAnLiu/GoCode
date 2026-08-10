@@ -9,9 +9,9 @@ setup(
     description='A code programming tool that automates the entire development process',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Your Name',
-    author_email='your.email@example.com',
-    url='https://github.com/yourusername/gocode',
+    author='gocode Team',
+    author_email='gocode@example.com',
+    url='https://github.com/gocode/gocode',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

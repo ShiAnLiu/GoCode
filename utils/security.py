@@ -2,6 +2,14 @@ import os
 import pathlib
 from typing import Optional
 
+def _is_relative_to(target: pathlib.Path, base: pathlib.Path) -> bool:
+    try:
+        target.relative_to(base)
+        return True
+    except ValueError:
+        return False
+
+
 class SecurityManager:
     """
     安全控制模块，用于限制文件系统操作范围和实现文件访问权限控制
@@ -27,11 +35,9 @@ class SecurityManager:
             bool: 是否允许访问
         """
         try:
-            # 解析文件路径
             target_path = pathlib.Path(file_path).resolve()
             
-            # 检查是否在工作空间目录内
-            if not target_path.is_relative_to(self.workspace_dir):
+            if not _is_relative_to(target_path, self.workspace_dir):
                 print(f"错误: 禁止访问工作空间以外的文件: {file_path}")
                 return False
             
@@ -51,11 +57,9 @@ class SecurityManager:
             bool: 是否允许访问
         """
         try:
-            # 解析目录路径
             target_path = pathlib.Path(dir_path).resolve()
             
-            # 检查是否在工作空间目录内
-            if not target_path.is_relative_to(self.workspace_dir):
+            if not _is_relative_to(target_path, self.workspace_dir):
                 print(f"错误: 禁止访问工作空间以外的目录: {dir_path}")
                 return False
             

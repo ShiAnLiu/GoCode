@@ -15,7 +15,7 @@ A code programming tool that automates the entire development process, from proj
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/gocode.git
+git clone https://github.com/gocode/gocode.git
 cd gocode
 
 # Install dependencies
@@ -57,7 +57,7 @@ gocode gui
 
 Configuration files are located in the `config` directory. You can modify the following settings:
 
-- `lm_studio_config.json`: LM Studio API configuration
+- `api_config.json`: API provider configuration (supports LM Studio, Ollama, OpenAI, Anthropic, etc.)
 - `security_config.json`: Security settings and file system access restrictions
 - `project_templates.json`: Project templates for different types of projects
 
@@ -75,7 +75,7 @@ Configuration files are located in the `config` directory. You can modify the fo
 
 ## Documentation
 
-For detailed documentation, please refer to the `docs` directory or visit our [GitHub Pages](https://yourusername.github.io/gocode).
+For detailed documentation, please refer to the `docs` directory or visit our [GitHub Pages](https://gocode.github.io/gocode).
 
 ## License
 
