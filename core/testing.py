@@ -1,4 +1,5 @@
 import os
+import subprocess
 import pytest
 import json
 from typing import Dict, List, Any
@@ -203,8 +204,6 @@ class TestManager:
             Dict: 单元测试结果
         """
         try:
-            # 运行pytest
-            import subprocess
             result = subprocess.run(
                 ['pytest', 'tests/test_core.py', '-v'],
                 cwd=self.project_dir,
@@ -232,8 +231,6 @@ class TestManager:
             Dict: 边界条件测试结果
         """
         try:
-            # 运行pytest
-            import subprocess
             result = subprocess.run(
                 ['pytest', 'tests/test_boundary.py', '-v'],
                 cwd=self.project_dir,
@@ -261,8 +258,6 @@ class TestManager:
             Dict: 系统集成测试结果
         """
         try:
-            # 运行pytest
-            import subprocess
             result = subprocess.run(
                 ['pytest', 'tests/test_integration.py', '-v'],
                 cwd=self.project_dir,

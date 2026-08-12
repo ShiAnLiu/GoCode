@@ -49,8 +49,8 @@ class APIConfig:
             try:
                 with open(self.config_path, 'r', encoding='utf-8') as f:
                     return json.load(f)
-            except Exception:
-                pass
+            except (json.JSONDecodeError, IOError) as e:
+                print(f"Warning: Failed to load config from {self.config_path}: {e}")
         
         return default_config
     
@@ -80,6 +80,8 @@ class APIConfig:
         elif provider == "anthropic":
             return base_url
         elif provider == "custom":
+            if base_url and not base_url.endswith("/chat/completions"):
+                return f"{base_url}/chat/completions"
             return base_url
         return base_url
     
