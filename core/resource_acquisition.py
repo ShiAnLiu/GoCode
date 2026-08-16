@@ -1,6 +1,5 @@
 import os
 import requests
-from bs4 import BeautifulSoup
 from typing import Dict, List, Any
 from utils.ai_client import AIClient
 
@@ -80,11 +79,33 @@ class ResourceAcquirer:
         for resource in resource_needs:
             try:
                 print(f"尝试获取资源: {resource}")
-                acquired_resources.append(resource)
                 
-                resource_file = os.path.join(output_dir, f"{resource.replace(' ', '_')}.txt")
-                with open(resource_file, 'w', encoding='utf-8') as f:
-                    f.write(f"Resource: {resource}\nAcquired from web crawl")
+                resource_file = os.path.join(output_dir, f"{resource.replace(' ', '_').replace('/', '_')}.txt")
+                
+                try:
+                    search_url = f"https://www.google.com/search?q={requests.utils.quote(resource + ' tutorial documentation')}"
+                    headers = {"User-Agent": "Mozilla/5.0 (compatible; gocode-bot/1.0)"}
+                    response = requests.get(search_url, headers=headers, timeout=10)
+                    
+                    if response.status_code == 200 and len(response.text) > 100:
+                        with open(resource_file, 'w', encoding='utf-8') as f:
+                            f.write(f"Resource: {resource}\n")
+                            f.write(f"Source: web search\n")
+                            f.write(f"Status: Found reference content online\n")
+                        acquired_resources.append(resource)
+                        print(f"  成功获取资源: {resource}")
+                    else:
+                        with open(resource_file, 'w', encoding='utf-8') as f:
+                            f.write(f"Resource: {resource}\n")
+                            f.write(f"Source: placeholder (web search unavailable)\n")
+                            f.write(f"Note: Web search returned no results, will attempt AI generation\n")
+                        print(f"  网络搜索无结果，将由AI补充: {resource}")
+                except requests.RequestException:
+                    with open(resource_file, 'w', encoding='utf-8') as f:
+                        f.write(f"Resource: {resource}\n")
+                        f.write(f"Source: placeholder (network unavailable)\n")
+                        f.write(f"Note: Network access failed, will attempt AI generation\n")
+                    print(f"  网络不可用，将由AI补充: {resource}")
                 
             except Exception as e:
                 print(f"获取资源 {resource} 失败: {e}")

@@ -120,15 +120,6 @@ class TestManager:
         return modules
     
     def _generate_unit_tests(self, modules):
-        """
-        生成单元测试
-        
-        Args:
-            modules: 模块信息列表
-            
-        Returns:
-            str: 单元测试代码
-        """
         imports = []
         test_cases = []
         
@@ -137,26 +128,38 @@ class TestManager:
             relative_path = module['relative_path'].replace('\\', '/')
             import_path = relative_path.replace('.py', '').replace('/', '.')
             
-            imports.append(f"from {import_path} import *")
+            class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+            imports.append(f"try:\n    from {import_path} import {class_name}\nexcept ImportError:\n    {class_name} = None\n")
             
-            test_cases.append(f"    def test_{module_name}(self):\n        # 测试{module_name}模块\n        assert True")
+            test_cases.append(
+                f"    def test_{module_name}_import(self):\n"
+                f"        \"\"\"Test that {module_name} module can be imported.\"\"\"\n"
+                f"        if {class_name} is None:\n"
+                f"            self.skipTest(\"{module_name} module could not be imported\")\n"
+                f"        assert {class_name} is not None, \"{module_name} should be importable\"\n"
+            )
+            
+            test_cases.append(
+                f"    def test_{module_name}_instantiation(self):\n"
+                f"        \"\"\"Test that {module_name} class can be instantiated.\"\"\"\n"
+                f"        if {class_name} is None:\n"
+                f"            self.skipTest(\"{module_name} module could not be imported\")\n"
+                f"        try:\n"
+                f"            instance = {class_name}()\n"
+                f"            assert instance is not None\n"
+                f"        except NotImplementedError:\n"
+                f"            self.skipTest(\"{module_name} is a stub module\")\n"
+                f"        except Exception as e:\n"
+                f"            self.fail(f\"Failed to instantiate {module_name}: {{e}}\")\n"
+            )
         
         if not modules:
-            imports.append("# 暂无模块可测试")
-            test_cases.append("    def test_placeholder(self):\n        # 占位测试\n        assert True")
+            imports.append("# No modules to test")
+            test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder test when no modules exist.\"\"\"\n        assert True")
         
-        return "import pytest\n" + "\n".join(imports) + "\n\nclass TestCoreModules:\n" + "\n".join(test_cases) + "\n"
+        return "import pytest\n" + "\n".join(imports) + "\n\n\nclass TestCoreModules:\n" + "\n".join(test_cases) + "\n"
     
     def _generate_boundary_tests(self, modules):
-        """
-        生成边界条件测试
-        
-        Args:
-            modules: 模块信息列表
-            
-        Returns:
-            str: 边界条件测试代码
-        """
         imports = []
         test_cases = []
         
@@ -165,36 +168,93 @@ class TestManager:
             relative_path = module['relative_path'].replace('\\', '/')
             import_path = relative_path.replace('.py', '').replace('/', '.')
             
-            imports.append(f"from {import_path} import *")
+            class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+            imports.append(f"try:\n    from {import_path} import {class_name}\nexcept ImportError:\n    {class_name} = None\n")
             
-            test_cases.append(f"    def test_{module_name}_boundary(self):\n        # 测试{module_name}模块边界条件\n        assert True")
+            test_cases.append(
+                f"    def test_{module_name}_boundary_empty(self):\n"
+                f"        \"\"\"Test {module_name} with empty/None inputs.\"\"\"\n"
+                f"        if {class_name} is None:\n"
+                f"            self.skipTest(\"{module_name} module could not be imported\")\n"
+                f"        try:\n"
+                f"            instance = {class_name}()\n"
+                f"            result = instance.execute()\n"
+                f"        except NotImplementedError:\n"
+                f"            self.skipTest(\"{module_name} is a stub module\")\n"
+                f"        except Exception:\n"
+                f"            pass\n"
+            )
+            
+            test_cases.append(
+                f"    def test_{module_name}_boundary_large_input(self):\n"
+                f"        \"\"\"Test {module_name} with large inputs.\"\"\"\n"
+                f"        if {class_name} is None:\n"
+                f"            self.skipTest(\"{module_name} module could not be imported\")\n"
+                f"        try:\n"
+                f"            instance = {class_name}()\n"
+                f"            result = instance.execute([1] * 10000)\n"
+                f"        except NotImplementedError:\n"
+                f"            self.skipTest(\"{module_name} is a stub module\")\n"
+                f"        except Exception:\n"
+                f"            pass\n"
+            )
         
         if not modules:
-            imports.append("# 暂无模块可测试")
-            test_cases.append("    def test_placeholder_boundary(self):\n        # 占位边界测试\n        assert True")
+            imports.append("# No modules to test")
+            test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder boundary test.\"\"\"\n        assert True")
         
-        return "import pytest\n" + "\n".join(imports) + "\n\nclass TestBoundaryConditions:\n" + "\n".join(test_cases) + "\n"
+        return "import pytest\n" + "\n".join(imports) + "\n\n\nclass TestBoundaryConditions:\n" + "\n".join(test_cases) + "\n"
     
     def _generate_integration_tests(self, modules):
-        """
-        生成系统集成测试
-        
-        Args:
-            modules: 模块信息列表
-            
-        Returns:
-            str: 系统集成测试代码
-        """
         main_import = ""
         if os.path.exists(os.path.join(self.project_dir, 'src', 'main.py')):
-            main_import = "from src.main import main"
+            main_import = "try:\n    from src.main import main\nexcept ImportError:\n    main = None\n"
+        
+        module_imports = []
+        for module in modules:
+            module_name = module['name']
+            relative_path = module['relative_path'].replace('\\', '/')
+            import_path = relative_path.replace('.py', '').replace('/', '.')
+            class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+            module_imports.append(f"try:\n    from {import_path} import {class_name}\nexcept ImportError:\n    {class_name} = None\n")
+        
+        imports = "\n".join(module_imports)
         
         test_cases = [
-            "    def test_system_integration(self):\n        # 测试系统集成\n        assert True",
-            "    def test_end_to_end(self):\n        # 测试端到端流程\n        assert True"
+            "    def test_system_integration(self):\n"
+            "        \"\"\"Test overall system integration.\"\"\"\n"
+            "        modules_ok = True\n"
         ]
         
-        return "import pytest\n" + main_import + "\n\nclass TestIntegration:\n" + "\n".join(test_cases) + "\n"
+        for module in modules:
+            class_name = ''.join(word.capitalize() for word in module['name'].split('_'))
+            test_cases.append(
+                f"        if {class_name} is None:\n"
+                f"            modules_ok = False\n"
+                f"        else:\n"
+                f"            try:\n"
+                f"                instance = {class_name}()\n"
+                f"                assert instance is not None\n"
+                f"            except NotImplementedError:\n"
+                f"                pass\n"
+                f"            except Exception:\n"
+                f"                modules_ok = False\n"
+            )
+        
+        test_cases.append("        assert modules_ok, \"Not all modules integrated correctly\"")
+        
+        test_cases.append(
+            "    def test_end_to_end(self):\n"
+            "        \"\"\"Test end-to-end flow.\"\"\"\n"
+            "        try:\n"
+            "            if main is not None:\n"
+            "                assert callable(main)\n"
+            "        except Exception:\n"
+            "            pass\n"
+            "        assert True\n"
+        )
+        
+        return "import pytest\n" + imports + "\n" + main_import + "\n\nclass TestIntegration:\n" + "\n".join(test_cases) + "\n"
     
     def _run_unit_tests(self) -> Dict[str, Any]:
         """

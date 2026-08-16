@@ -154,56 +154,106 @@ if __name__ == "__main__":
         return pseudocode
     
     def _implement_code(self, modules: List[Dict[str, Any]], pseudocode: Dict[str, str]) -> Dict[str, str]:
-        """
-        按优先级顺序实现代码
-        
-        Args:
-            modules: 模块列表
-            pseudocode: 模块伪代码映射
-            
-        Returns:
-            Dict: 模块实现路径映射
-        """
         implementation = {}
         
-        # 按优先级排序
         sorted_modules = sorted(modules, key=lambda x: x["priority"])
         
         for module in sorted_modules:
             module_name = module["name"]
             module_path = os.path.join(self.src_dir, 'core', f"{module_name}.py")
+            description = module.get("description", f"Module {module_name}")
             
-            # 生成实际代码
-            code = pseudocode.get(module_name, "")
+            code = self._generate_module_code(module_name, description, pseudocode.get(module_name, ""))
             
-            # 保存代码文件
             with open(module_path, 'w', encoding='utf-8') as f:
                 f.write(code)
             
             implementation[module_name] = module_path
             print(f"已实现模块: {module_name}")
         
-        # 更新__init__.py文件
         init_path = os.path.join(self.src_dir, 'core', '__init__.py')
         with open(init_path, 'w', encoding='utf-8') as f:
-            f.write("# Core modules\n")
             for module in modules:
                 module_name = module["name"]
-                f.write(f"from .{module_name} import *\n")
+                class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+                f.write(f"from .{module_name} import {class_name}\n")
         
-        # 更新主文件
         main_path = os.path.join(self.src_dir, 'main.py')
         with open(main_path, 'w', encoding='utf-8') as f:
-            f.write("""# Main entry point
-from core import *
-
-def main():
-    print('Hello, World!')
-    # 初始化模块
-    # 调用模块方法
-
-if __name__ == '__main__':
-    main()
-""")
+            f.write(self._generate_main_file(modules))
         
         return implementation
+    
+    def _generate_module_code(self, module_name: str, description: str, pseudocode: str) -> str:
+        class_name = ''.join(word.capitalize() for word in module_name.split('_'))
+        docstring = description if description else f"AUTO-GENERATED: Module {module_name}"
+        
+        method_names = self._extract_method_names(pseudocode)
+        
+        code = f'"""{docstring}"""\n\n'
+        code += 'from typing import Any, Dict, List, Optional\n\n\n'
+        code += f'class {class_name}:\n'
+        code += f'    """{docstring}"""\n\n'
+        code += f'    def __init__(self, **kwargs: Any) -> None:\n'
+        code += f'        self.config = kwargs\n'
+        code += f'        self._initialized = False\n'
+        code += f'        self._data: Dict[str, Any] = {{}}\n\n'
+        
+        if method_names:
+            for i, method_name in enumerate(method_names):
+                code += f'    def {method_name}(self, *args: Any, **kwargs: Any) -> Any:\n'
+                code += f'        """TODO: Implement {method_name} for {module_name}."""\n'
+                code += f'        raise NotImplementedError(\n'
+                code += f'            f"{class_name}.{method_name}() is not implemented yet"\n'
+                code += f'        )\n\n'
+        else:
+            code += f'    def execute(self, *args: Any, **kwargs: Any) -> Any:\n'
+            code += f'        """Main execution method for {module_name}."""\n'
+            code += f'        raise NotImplementedError(\n'
+            code += f'            f"{class_name}.execute() is not implemented yet"\n'
+            code += f'        )\n\n'
+        
+        code += f'\n\ndef create_{module_name}(**kwargs: Any) -> "{class_name}":\n'
+        code += f'    """Factory function for {module_name}."""\n'
+        code += f'    return {class_name}(**kwargs)\n'
+        
+        return code
+    
+    def _extract_method_names(self, pseudocode: str) -> List[str]:
+        methods = []
+        for line in pseudocode.split('\n'):
+            stripped = line.strip()
+            if stripped.startswith('def ') and '(' in stripped:
+                method_name = stripped[4:stripped.index('(')].strip()
+                if method_name and method_name not in methods and method_name != '__init__':
+                    methods.append(method_name)
+        return methods
+    
+    def _generate_main_file(self, modules: List[Dict[str, Any]]) -> str:
+        imports = []
+        for module in modules:
+            class_name = ''.join(word.capitalize() for word in module['name'].split('_'))
+            imports.append(f'from core.{module["name"]} import {class_name}')
+        
+        modules_init = ', '.join(
+            f'{cls}()' for cls in [''.join(w.capitalize() for w in m['name'].split('_')) for m in modules]
+        )
+        
+        return f'''"""Main entry point - AUTO-GENERATED by gocode."""
+
+from core import *
+
+
+def main():
+    """Initialize and run all modules."""
+    modules = [{modules_init}]
+    
+    for module in modules:
+        print(f"Initialized: {{type(module).__name__}}")
+    
+    print("All modules initialized successfully.")
+
+
+if __name__ == "__main__":
+    main()
+'''
