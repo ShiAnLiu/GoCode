@@ -1,7 +1,5 @@
 import os
 import subprocess
-import pytest
-import json
 from typing import Dict, List, Any
 
 class TestManager:
@@ -157,7 +155,7 @@ class TestManager:
             imports.append("# No modules to test")
             test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder test when no modules exist.\"\"\"\n        assert True")
         
-        return "import pytest\nimport unittest\n" + "\n".join(imports) + "\n\n\nclass TestCoreModules(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return "import unittest\n" + "\n".join(imports) + "\n\n\nclass TestCoreModules(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
     
     def _generate_boundary_tests(self, modules):
         imports = []
@@ -203,7 +201,7 @@ class TestManager:
             imports.append("# No modules to test")
             test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder boundary test.\"\"\"\n        assert True")
         
-        return "import pytest\nimport unittest\n" + "\n".join(imports) + "\n\n\nclass TestBoundaryConditions(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return "import unittest\n" + "\n".join(imports) + "\n\n\nclass TestBoundaryConditions(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
     
     def _generate_integration_tests(self, modules):
         main_import = ""
@@ -254,7 +252,7 @@ class TestManager:
             "        assert True\n"
         )
         
-        return "import pytest\nimport unittest\n" + imports + "\n" + main_import + "\n\nclass TestIntegration(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return "import unittest\n" + imports + "\n" + main_import + "\n\nclass TestIntegration(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
     
     def _run_unit_tests(self) -> Dict[str, Any]:
         """
