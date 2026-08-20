@@ -83,6 +83,9 @@ class SecurityManager:
             return None
         
         try:
+            # 二进制模式不接受 encoding 参数
+            if 'b' in mode:
+                return open(file_path, mode)
             return open(file_path, mode, encoding='utf-8')
         except Exception as e:
             print(f"打开文件时出错: {e}")
