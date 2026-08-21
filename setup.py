@@ -11,7 +11,7 @@ setup(
     long_description_content_type='text/markdown',
     author='gocode Team',
     author_email='gocode@example.com',
-    url='https://github.com/gocode/gocode',
+    url='https://github.com/ShiAnLiu/GoCode',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[

@@ -15,8 +15,8 @@ A code programming tool that automates the entire development process, from proj
 
 ```bash
 # Clone the repository
-git clone https://github.com/gocode/gocode.git
-cd gocode
+git clone https://github.com/ShiAnLiu/GoCode.git
+cd GoCode
 
 # Install dependencies
 pip install -r requirements.txt
