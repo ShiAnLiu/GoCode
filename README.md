@@ -75,7 +75,7 @@ Configuration files are located in the `config` directory. You can modify the fo
 
 ## Documentation
 
-For detailed documentation, please refer to the `docs` directory or visit our [GitHub Pages](https://gocode.github.io/gocode).
+For detailed documentation, please refer to the `docs` directory or visit our [GitHub Pages](https://ShiAnLiu.github.io/GoCode).
 
 ## License
 
