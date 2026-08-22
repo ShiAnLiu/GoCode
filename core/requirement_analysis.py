@@ -61,14 +61,14 @@ class RequirementAnalyzer:
                 current_section = "technical_requirements"
             elif "验收标准" in line or "Acceptance Criteria" in line:
                 current_section = "acceptance_criteria"
-            elif current_section and line.startswith(("- ", "* ", "1.", "2.", "3.")):
+            elif current_section and (line.startswith(("- ", "* ")) or (line[:1].isdigit() and "." in line[:3])):
                 if line.startswith(("- ", "* ")):
                     item = line[2:]
                 elif line[0].isdigit() and "." in line:
                     item = line.split(".", 1)[1].strip()
                 else:
                     item = line
-                
+
                 sections[current_section].append(item)
         
         return {

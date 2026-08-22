@@ -60,7 +60,7 @@ class ResourceAcquirer:
             lines = resource_text.split("\n")
             for line in lines:
                 line = line.strip()
-                if line and line.startswith(("- ", "* ", "1.", "2.", "3.")):
+                if line and (line.startswith(("- ", "* ")) or (line[:1].isdigit() and "." in line[:3])):
                     if line.startswith(("- ", "* ")):
                         resource = line[2:]
                     elif line[0].isdigit() and "." in line:
