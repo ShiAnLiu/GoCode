@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Dict, List, Any
 from utils.ai_client import AIClient
 
@@ -45,31 +46,49 @@ class RequirementAnalyzer:
             "acceptance_criteria": []
         }
         
+        section_map = {
+            "requirement_breakdown": "需求拆解",
+            "functional_specs": "功能规格",
+            "technical_requirements": "技术要求",
+            "acceptance_criteria": "验收标准"
+        }
+        
         lines = analysis_text.split("\n")
         current_section = None
+        pending_items = []
         
         for line in lines:
             line = line.strip()
             if not line:
                 continue
             
-            if "需求拆解" in line or "Requirement Breakdown" in line:
-                current_section = "requirement_breakdown"
-            elif "功能规格" in line or "Functional Specs" in line:
-                current_section = "functional_specs"
-            elif "技术要求" in line or "Technical Requirements" in line:
-                current_section = "technical_requirements"
-            elif "验收标准" in line or "Acceptance Criteria" in line:
-                current_section = "acceptance_criteria"
-            elif current_section and (line.startswith(("- ", "* ")) or (line[:1].isdigit() and "." in line[:3])):
+            matched_section = None
+            for section_key, section_label in section_map.items():
+                if section_label in line:
+                    matched_section = section_key
+                    break
+            
+            if matched_section:
+                if pending_items and current_section:
+                    sections[current_section].extend(pending_items)
+                    pending_items = []
+                current_section = matched_section
+            elif line.startswith(("- ", "* ")) or re.match(r'^\d+\.\s', line):
                 if line.startswith(("- ", "* ")):
                     item = line[2:]
-                elif line[0].isdigit() and "." in line:
-                    item = line.split(".", 1)[1].strip()
                 else:
-                    item = line
-
-                sections[current_section].append(item)
+                    item = re.sub(r'^\d+\.\s', '', line)
+                
+                if current_section:
+                    sections[current_section].append(item)
+                else:
+                    pending_items.append(item)
+        
+        if pending_items and current_section:
+            sections[current_section].extend(pending_items)
+        
+        if not any(sections.values()):
+            sections["requirement_breakdown"] = [analysis_text]
         
         return {
             "success": True,

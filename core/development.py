@@ -243,9 +243,9 @@ if __name__ == "__main__":
         instantiations = []
         for module in modules:
             class_name = ''.join(word.capitalize() for word in module['name'].split('_'))
-            import_lines.append(f'from core.{module["name"]} import {class_name}')
+            import_lines.append(f'from src.core.{module["name"]} import {class_name}')
             instantiations.append(f'{class_name}()')
-        
+
         imports_str = '\n'.join(import_lines)
         init_str = ', '.join(instantiations)
         

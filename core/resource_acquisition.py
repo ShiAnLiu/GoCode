@@ -1,4 +1,5 @@
 import os
+import re
 import requests
 from typing import Dict, List, Any
 from utils.ai_client import AIClient
@@ -44,7 +45,7 @@ class ResourceAcquirer:
         messages = [
             {
                 "role": "system",
-                "content": "你是一位专业的资源分析师，擅长识别项目所需的各类资源。请根据用户需求，识别出项目可能需要的所有资源，包括但不限于：图片、图标、文档、代码库、第三方依赖等。"
+                "content": "你是一位专业的资源分析师，擅长识别项目所需的各类资源。请根据用户需求，识别出项目可能需要的所有资源，包括但不限于：图片、图标、文档、代码库、第三方依赖等。请使用编号列表（1. 2. 3.）或项目符号列表（- 或 *）输出每一项资源。"
             },
             {
                 "role": "user",
@@ -60,14 +61,15 @@ class ResourceAcquirer:
             lines = resource_text.split("\n")
             for line in lines:
                 line = line.strip()
-                if line and (line.startswith(("- ", "* ")) or (line[:1].isdigit() and "." in line[:3])):
+                if line and (line.startswith(("- ", "* ")) or re.match(r'^\d+\.\s', line)):
                     if line.startswith(("- ", "* ")):
                         resource = line[2:]
-                    elif line[0].isdigit() and "." in line:
-                        resource = line.split(".", 1)[1].strip()
                     else:
-                        resource = line
+                        resource = re.sub(r'^\d+\.\s', '', line)
                     resources.append(resource)
+            
+            if not resources and resource_text:
+                resources = [resource_text.strip()]
             
             return resources
         else:
@@ -95,22 +97,26 @@ class ResourceAcquirer:
                         acquired_resources.append(resource)
                         print(f"  成功获取资源: {resource}")
                     else:
-                        with open(resource_file, 'w', encoding='utf-8') as f:
-                            f.write(f"Resource: {resource}\n")
-                            f.write(f"Source: placeholder (web search unavailable)\n")
-                            f.write(f"Note: Web search returned no results, will attempt AI generation\n")
+                        self._write_placeholder_resource(resource_file, resource)
                         print(f"  网络搜索无结果，将由AI补充: {resource}")
                 except requests.RequestException:
-                    with open(resource_file, 'w', encoding='utf-8') as f:
-                        f.write(f"Resource: {resource}\n")
-                        f.write(f"Source: placeholder (network unavailable)\n")
-                        f.write(f"Note: Network access failed, will attempt AI generation\n")
+                    self._write_placeholder_resource(resource_file, resource, network_failed=True)
                     print(f"  网络不可用，将由AI补充: {resource}")
                 
             except Exception as e:
                 print(f"获取资源 {resource} 失败: {e}")
         
         return acquired_resources
+    
+    def _write_placeholder_resource(self, resource_file: str, resource: str, network_failed: bool = False):
+        with open(resource_file, 'w', encoding='utf-8') as f:
+            f.write(f"Resource: {resource}\n")
+            if network_failed:
+                f.write(f"Source: placeholder (network unavailable)\n")
+                f.write(f"Note: Network access failed, will attempt AI generation\n")
+            else:
+                f.write(f"Source: placeholder (web search unavailable)\n")
+                f.write(f"Note: Web search returned no results, will attempt AI generation\n")
     
     def _create_resources(self, resource_needs: List[str], output_dir: str) -> List[str]:
         created_resources = []
@@ -150,10 +156,13 @@ class ResourceAcquirer:
     def _request_user_resources(self, resource_needs: List[str]) -> List[str]:
         user_provided = []
         
-        print("以下资源无法自动获取，请用户提供：")
+        print("以下资源无法自动获取，需要用户手动提供：")
         for resource in resource_needs:
-            print(f"- {resource}")
+            print(f"  - {resource}")
+            print(f"    请将此资源文件放入对应目录或通过其他方式提供")
             user_provided.append(resource)
+        
+        print(f"\n共 {len(resource_needs)} 个资源需要用户手动提供")
         
         return user_provided
     

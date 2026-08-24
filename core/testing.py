@@ -263,7 +263,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['pytest', 'tests/test_core.py', '-v'],
+                ['python', '-m', 'pytest', 'tests/test_core.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True
@@ -274,6 +274,11 @@ class TestManager:
                 "output": result.stdout,
                 "error": result.stderr,
                 "returncode": result.returncode
+            }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
             }
         except Exception as e:
             return {
@@ -290,7 +295,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['pytest', 'tests/test_boundary.py', '-v'],
+                ['python', '-m', 'pytest', 'tests/test_boundary.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True
@@ -301,6 +306,11 @@ class TestManager:
                 "output": result.stdout,
                 "error": result.stderr,
                 "returncode": result.returncode
+            }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
             }
         except Exception as e:
             return {
@@ -317,7 +327,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['pytest', 'tests/test_integration.py', '-v'],
+                ['python', '-m', 'pytest', 'tests/test_integration.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True
@@ -328,6 +338,11 @@ class TestManager:
                 "output": result.stdout,
                 "error": result.stderr,
                 "returncode": result.returncode
+            }
+        except FileNotFoundError:
+            return {
+                "success": False,
+                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
             }
         except Exception as e:
             return {
