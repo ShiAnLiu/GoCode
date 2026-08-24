@@ -73,19 +73,17 @@ class APIConfig:
         provider_config = self.config.get(provider, {})
         base_url = provider_config.get("base_url", "")
         
-        if provider == "lmstudio":
-            return f"{base_url}/chat/completions"
-        elif provider == "ollama":
-            return f"{base_url}/chat/completions"
-        elif provider == "openai":
-            return f"{base_url}/chat/completions"
-        elif provider == "anthropic":
-            return f"{base_url}/v1/messages"
+        if not base_url:
+            return ""
+        
+        if provider == "anthropic":
+            return f"{base_url.rstrip('/')}/v1/messages"
         elif provider == "custom":
-            if base_url and not base_url.endswith("/chat/completions"):
-                return f"{base_url}/chat/completions"
-            return base_url
-        return base_url
+            if base_url.endswith("/chat/completions") or base_url.endswith("/v1/messages"):
+                return base_url
+            return f"{base_url.rstrip('/')}/chat/completions"
+        else:
+            return f"{base_url.rstrip('/')}/chat/completions"
     
     def get_model(self) -> str:
         provider = self.get_provider()
@@ -143,8 +141,19 @@ class APIConfig:
         
         try:
             if provider == "anthropic":
-                return response_data.get("content", [{}])[0].get("text", "")
+                content = response_data.get("content", [])
+                if isinstance(content, list) and content:
+                    if isinstance(content[0], dict):
+                        return content[0].get("text", "")
+                    elif isinstance(content[0], str):
+                        return content[0]
+                return ""
             else:
-                return response_data["choices"][0]["message"]["content"]
+                choices = response_data.get("choices", [])
+                if choices and isinstance(choices, list):
+                    message = choices[0].get("message", {})
+                    if isinstance(message, dict):
+                        return message.get("content", "")
+                return None
         except Exception:
             return None
