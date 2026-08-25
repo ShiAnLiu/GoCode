@@ -7,6 +7,13 @@ class AIClient:
         self.config = APIConfig(config_path)
     
     def chat(self, messages: List[Dict[str, str]], temperature: float = 0.7, max_tokens: int = 2000) -> Dict[str, Any]:
+        validation = self.config.validate_config()
+        if not validation.get("success"):
+            return {
+                "error": "API配置无效: " + "; ".join(validation.get("errors", [])),
+                "success": False
+            }
+        
         try:
             url = self.config.get_api_url()
             headers = self.config.get_headers()

@@ -18,7 +18,6 @@ setup(
         'requests==2.31.0',
         'kivy>=2.3.0',
         'pytest==7.4.3',
-        'sphinx==7.2.6',
         'beautifulsoup4==4.12.2',
         'lxml==4.9.3',
         'astor==0.8.1',
