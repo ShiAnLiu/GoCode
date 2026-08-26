@@ -102,9 +102,14 @@ class TestManager:
         if not os.path.exists(src_dir):
             return modules
         
+        # 跳过的文件（入口文件等非模块文件）
+        skip_files = {'main.py', '__main__.py', 'app.py', 'wsgi.py', 'manage.py', 'run.py'}
+        
         for root, dirs, files in os.walk(src_dir):
             for file in files:
                 if file.endswith('.py') and not file.startswith('__init__'):
+                    if file in skip_files:
+                        continue
                     module_path = os.path.join(root, file)
                     module_name = os.path.splitext(file)[0]
                     relative_path = os.path.relpath(module_path, self.project_dir)
@@ -155,7 +160,21 @@ class TestManager:
             imports.append("# No modules to test")
             test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder test when no modules exist.\"\"\"\n        assert True")
         
-        return "import unittest\n" + "\n".join(imports) + "\n\n\nclass TestCoreModules(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return (
+            "import os\n"
+            "import sys\n\n"
+            "# Ensure project root and src directory are on sys.path for imports\n"
+            "_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n"
+            "_SRC_DIR = os.path.join(_PROJECT_ROOT, 'src')\n"
+            "for _p in (_PROJECT_ROOT, _SRC_DIR):\n"
+            "    if _p not in sys.path:\n"
+            "        sys.path.insert(0, _p)\n\n"
+            "import unittest\n"
+            + "\n".join(imports)
+            + "\n\n\nclass TestCoreModules(unittest.TestCase):\n"
+            + "\n".join(test_cases)
+            + "\n"
+        )
     
     def _generate_boundary_tests(self, modules):
         imports = []
@@ -201,11 +220,26 @@ class TestManager:
             imports.append("# No modules to test")
             test_cases.append("    def test_placeholder(self):\n        \"\"\"Placeholder boundary test.\"\"\"\n        assert True")
         
-        return "import unittest\n" + "\n".join(imports) + "\n\n\nclass TestBoundaryConditions(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return (
+            "import os\n"
+            "import sys\n\n"
+            "# Ensure project root and src directory are on sys.path for imports\n"
+            "_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n"
+            "_SRC_DIR = os.path.join(_PROJECT_ROOT, 'src')\n"
+            "for _p in (_PROJECT_ROOT, _SRC_DIR):\n"
+            "    if _p not in sys.path:\n"
+            "        sys.path.insert(0, _p)\n\n"
+            "import unittest\n"
+            + "\n".join(imports)
+            + "\n\n\nclass TestBoundaryConditions(unittest.TestCase):\n"
+            + "\n".join(test_cases)
+            + "\n"
+        )
     
     def _generate_integration_tests(self, modules):
         main_import = ""
-        if os.path.exists(os.path.join(self.project_dir, 'src', 'main.py')):
+        main_src_path = os.path.join(self.project_dir, 'src', 'main.py')
+        if os.path.exists(main_src_path):
             main_import = "try:\n    from src.main import main\nexcept ImportError:\n    main = None\n"
         
         module_imports = []
@@ -252,7 +286,23 @@ class TestManager:
             "        assert True\n"
         )
         
-        return "import unittest\n" + imports + "\n" + main_import + "\n\nclass TestIntegration(unittest.TestCase):\n" + "\n".join(test_cases) + "\n"
+        return (
+            "import os\n"
+            "import sys\n\n"
+            "# Ensure project root and src directory are on sys.path for imports\n"
+            "_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))\n"
+            "_SRC_DIR = os.path.join(_PROJECT_ROOT, 'src')\n"
+            "for _p in (_PROJECT_ROOT, _SRC_DIR):\n"
+            "    if _p not in sys.path:\n"
+            "        sys.path.insert(0, _p)\n\n"
+            "import unittest\n"
+            + imports
+            + "\n"
+            + main_import
+            + "\n\nclass TestIntegration(unittest.TestCase):\n"
+            + "\n".join(test_cases)
+            + "\n"
+        )
     
     def _run_unit_tests(self) -> Dict[str, Any]:
         """

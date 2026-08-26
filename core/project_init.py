@@ -73,8 +73,26 @@ class ProjectInitializer:
         for subdir in src_subdirs:
             (self.project_dir / 'src' / subdir).mkdir(exist_ok=True)
         
+        # 创建__init__.py文件使目录成为Python包
+        self._create_package_init_files()
+        
         # 创建基本文件
         self._create_initial_files()
+    
+    def _create_package_init_files(self):
+        """
+        创建__init__.py文件使目录成为Python包
+        """
+        # src/__init__.py
+        src_init = self.project_dir / 'src' / '__init__.py'
+        if not src_init.exists():
+            src_init.write_text("", encoding='utf-8')
+        
+        # src子目录的__init__.py
+        for subdir in ['core', 'utils', 'api', 'ui']:
+            init_path = self.project_dir / 'src' / subdir / '__init__.py'
+            if not init_path.exists():
+                init_path.write_text("", encoding='utf-8')
     
     def _create_initial_files(self):
         """
@@ -158,6 +176,25 @@ pytest_cache/
         try:
             import subprocess
             subprocess.run(['git', 'init'], cwd=str(self.project_dir), capture_output=True, check=True)
+            
+            # 设置本地git用户配置（如果全局未配置），确保首次提交能成功
+            try:
+                subprocess.run(
+                    ['git', 'config', 'user.name', 'gocode'],
+                    cwd=str(self.project_dir),
+                    capture_output=True,
+                    check=True
+                )
+                subprocess.run(
+                    ['git', 'config', 'user.email', 'gocode@localhost'],
+                    cwd=str(self.project_dir),
+                    capture_output=True,
+                    check=True
+                )
+            except Exception:
+                # 忽略设置失败，继续尝试
+                pass
+            
             subprocess.run(['git', 'add', '.'], cwd=str(self.project_dir), capture_output=True, check=True)
             subprocess.run(['git', 'commit', '-m', 'Initial commit'], cwd=str(self.project_dir), capture_output=True, check=True)
         except Exception as e:
