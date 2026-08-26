@@ -1,12 +1,12 @@
 # 核心依赖
 requests==2.31.0
 kivy>=2.3.0
-pytest==7.4.3
-sphinx==7.2.6
+pytest>=7.4.3,<9
+sphinx>=7.2.6
 
 # 网络爬虫依赖
 beautifulsoup4==4.12.2
-lxml==4.9.3
+lxml>=5.1.0
 
 # 代码生成和分析依赖
 astor==0.8.1
