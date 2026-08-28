@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 from typing import Dict, List, Any
 
@@ -313,7 +314,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['python', '-m', 'pytest', 'tests/test_core.py', '-v', '--tb=short'],
+                [sys.executable, '-m', 'pytest', 'tests/test_core.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True
@@ -345,7 +346,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['python', '-m', 'pytest', 'tests/test_boundary.py', '-v', '--tb=short'],
+                [sys.executable, '-m', 'pytest', 'tests/test_boundary.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True
@@ -377,7 +378,7 @@ class TestManager:
         """
         try:
             result = subprocess.run(
-                ['python', '-m', 'pytest', 'tests/test_integration.py', '-v', '--tb=short'],
+                [sys.executable, '-m', 'pytest', 'tests/test_integration.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True

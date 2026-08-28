@@ -84,25 +84,39 @@ class ResourceAcquirer:
                 
                 resource_file = os.path.join(output_dir, f"{resource.replace(' ', '_').replace('/', '_')}.txt")
                 
-                try:
-                    search_url = f"https://www.google.com/search?q={requests.utils.quote(resource + ' tutorial documentation')}"
-                    headers = {"User-Agent": "Mozilla/5.0 (compatible; gocode-bot/1.0)"}
-                    response = requests.get(search_url, headers=headers, timeout=10)
-                    
-                    if response.status_code == 200 and len(response.text) > 100:
-                        with open(resource_file, 'w', encoding='utf-8') as f:
-                            f.write(f"Resource: {resource}\n")
-                            f.write(f"Source: web search\n")
-                            f.write(f"Status: Found reference content online\n")
-                        acquired_resources.append(resource)
-                        print(f"  成功获取资源: {resource}")
-                    else:
-                        self._write_placeholder_resource(resource_file, resource)
-                        print(f"  网络搜索无结果，将由AI补充: {resource}")
-                except requests.RequestException:
-                    self._write_placeholder_resource(resource_file, resource, network_failed=True)
-                    print(f"  网络不可用，将由AI补充: {resource}")
+                # Try multiple search engines for better reliability
+                found = False
+                search_urls = [
+                    f"https://www.google.com/search?q={requests.utils.quote(resource + ' tutorial documentation')}",
+                    f"https://duckduckgo.com/html/?q={requests.utils.quote(resource + ' tutorial')}",
+                ]
                 
+                for search_url in search_urls:
+                    try:
+                        headers = {
+                            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                            "Accept-Language": "en-US,en;q=0.5",
+                        }
+                        response = requests.get(search_url, headers=headers, timeout=15)
+                        
+                        if response.status_code == 200 and len(response.text) > 500:
+                            with open(resource_file, 'w', encoding='utf-8') as f:
+                                f.write(f"Resource: {resource}\n")
+                                f.write(f"Source: web search\n")
+                                f.write(f"Search URL: {search_url}\n")
+                                f.write(f"Status: Found reference content online\n")
+                            acquired_resources.append(resource)
+                            print(f"  成功获取资源: {resource}")
+                            found = True
+                            break
+                    except requests.RequestException:
+                        continue
+                
+                if not found:
+                    self._write_placeholder_resource(resource_file, resource, network_failed=True)
+                    print(f"  网络搜索无结果或被阻止，将由AI补充: {resource}")
+                    
             except Exception as e:
                 print(f"获取资源 {resource} 失败: {e}")
         

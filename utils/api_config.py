@@ -140,6 +140,9 @@ class APIConfig:
         provider = self.get_provider()
         
         try:
+            if not isinstance(response_data, dict):
+                return None
+            
             if provider == "anthropic":
                 content = response_data.get("content", [])
                 if isinstance(content, list) and content:
@@ -147,13 +150,34 @@ class APIConfig:
                         return content[0].get("text", "")
                     elif isinstance(content[0], str):
                         return content[0]
+                # Handle newer Anthropic API format where content may be a string
+                if isinstance(content, str):
+                    return content
                 return ""
-            else:
+            elif provider == "ollama":
+                # Ollama may return different formats
+                message = response_data.get("message", {})
+                if isinstance(message, dict):
+                    return message.get("content", "")
+                # Some Ollama responses use the choices format
                 choices = response_data.get("choices", [])
                 if choices and isinstance(choices, list):
                     message = choices[0].get("message", {})
                     if isinstance(message, dict):
                         return message.get("content", "")
+                return None
+            else:
+                # Standard OpenAI-compatible format
+                choices = response_data.get("choices", [])
+                if choices and isinstance(choices, list):
+                    message = choices[0].get("message", {})
+                    if isinstance(message, dict):
+                        return message.get("content", "")
+                # Handle edge case: some providers return direct content
+                if "content" in response_data:
+                    content = response_data["content"]
+                    if isinstance(content, str):
+                        return content
                 return None
         except Exception:
             return None

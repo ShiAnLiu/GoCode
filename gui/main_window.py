@@ -294,16 +294,39 @@ class MainWindow(BoxLayout):
         model = self.model_input.text
         api_key = self.api_key_input.text
         
+        # Set all config values in memory, then save once
         self.api_config.set_api_config(provider, base_url=base_url, model=model, api_key=api_key)
-        self.api_config.set_provider(provider)
+        if self.api_config.config.get("provider") != provider:
+            self.api_config.config["provider"] = provider
+            self.api_config.save_config()  # Only save if provider changed too
         
         self.settings_result.text = "设置已保存"
     
     def _test_connection(self, instance):
         from utils.ai_client import AIClient
+        from utils.api_config import APIConfig
         
         try:
+            # Use current GUI settings for the test, not stale file config
+            provider = self.provider_spinner.text
+            base_url = self.base_url_input.text
+            model = self.model_input.text
+            api_key = self.api_key_input.text
+            
+            # Create a temporary config with current GUI values (in-memory only, no disk writes)
+            test_config = APIConfig()
+            test_config.config["provider"] = provider
+            if provider not in test_config.config:
+                test_config.config[provider] = {}
+            test_config.config[provider]["base_url"] = base_url
+            test_config.config[provider]["model"] = model
+            if api_key:
+                test_config.config[provider]["api_key"] = api_key
+            
+            # Create client with current GUI settings
             client = AIClient()
+            client.config = test_config
+            
             result = client.chat([
                 {"role": "user", "content": "你好，请回复'连接成功'"}
             ], max_tokens=50)
