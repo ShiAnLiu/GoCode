@@ -17,6 +17,27 @@ class TestManager:
         """
         self.project_dir = project_dir
         self.test_dir = os.path.join(project_dir, 'tests')
+        self._check_pytest_available()
+
+    def _check_pytest_available(self) -> bool:
+        """
+        检查 pytest 是否可用，如果不可用则输出友好提示
+        """
+        try:
+            result = subprocess.run(
+                [sys.executable, '-m', 'pytest', '--version'],
+                capture_output=True, text=True, timeout=10
+            )
+            if result.returncode != 0:
+                print("警告: pytest 未安装。请运行 'pip install pytest' 安装后再执行测试。")
+                self._pytest_available = False
+                return False
+            self._pytest_available = True
+            return True
+        except Exception:
+            print("警告: 无法检查 pytest 状态，测试可能无法正常运行。")
+            self._pytest_available = False
+            return False
     
     def run_tests(self) -> Dict[str, Any]:
         """
@@ -312,12 +333,15 @@ class TestManager:
         Returns:
             Dict: 单元测试结果
         """
+        if not getattr(self, '_pytest_available', True):
+            return {"success": False, "error": "pytest 未安装，请先运行 pip install pytest"}
         try:
             result = subprocess.run(
                 [sys.executable, '-m', 'pytest', 'tests/test_core.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=120
             )
             
             return {
@@ -326,16 +350,10 @@ class TestManager:
                 "error": result.stderr,
                 "returncode": result.returncode
             }
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
-            }
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "单元测试执行超时 (超过120秒)"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
     
     def _run_boundary_tests(self) -> Dict[str, Any]:
         """
@@ -344,12 +362,15 @@ class TestManager:
         Returns:
             Dict: 边界条件测试结果
         """
+        if not getattr(self, '_pytest_available', True):
+            return {"success": False, "error": "pytest 未安装，请先运行 pip install pytest"}
         try:
             result = subprocess.run(
                 [sys.executable, '-m', 'pytest', 'tests/test_boundary.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=120
             )
             
             return {
@@ -358,16 +379,10 @@ class TestManager:
                 "error": result.stderr,
                 "returncode": result.returncode
             }
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
-            }
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "边界条件测试执行超时 (超过120秒)"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
     
     def _run_integration_tests(self) -> Dict[str, Any]:
         """
@@ -376,12 +391,15 @@ class TestManager:
         Returns:
             Dict: 系统集成测试结果
         """
+        if not getattr(self, '_pytest_available', True):
+            return {"success": False, "error": "pytest 未安装，请先运行 pip install pytest"}
         try:
             result = subprocess.run(
                 [sys.executable, '-m', 'pytest', 'tests/test_integration.py', '-v', '--tb=short'],
                 cwd=self.project_dir,
                 capture_output=True,
-                text=True
+                text=True,
+                timeout=120
             )
             
             return {
@@ -390,16 +408,10 @@ class TestManager:
                 "error": result.stderr,
                 "returncode": result.returncode
             }
-        except FileNotFoundError:
-            return {
-                "success": False,
-                "error": "未找到pytest，请确保已安装pytest (pip install pytest)"
-            }
+        except subprocess.TimeoutExpired:
+            return {"success": False, "error": "系统集成测试执行超时 (超过120秒)"}
         except Exception as e:
-            return {
-                "success": False,
-                "error": str(e)
-            }
+            return {"success": False, "error": str(e)}
     
     def _generate_test_report(self, unit_results: Dict[str, Any], boundary_results: Dict[str, Any], integration_results: Dict[str, Any]) -> str:
         """

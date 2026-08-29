@@ -15,16 +15,8 @@ setup(
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
-        'requests==2.31.0',
-        'kivy>=2.3.0',
-        'pytest>=7.4.3,<9',
-        'sphinx>=7.2.6',
-        'beautifulsoup4==4.12.2',
-        'lxml>=5.1.0',
-        'astor==0.8.1',
-        'pycodestyle==2.11.1',
-        'pyjwt==2.8.0',
-        'platformdirs==4.1.0',
+        'requests>=2.31.0',
+        'pytest>=7.4.3',
     ],
     entry_points={
         'console_scripts': [
