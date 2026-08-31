@@ -3,10 +3,11 @@ import re
 from typing import Dict, List, Any
 from utils.ai_client import AIClient
 
+
 class RequirementAnalyzer:
     def __init__(self, config_path: str = None):
         self.ai_client = AIClient(config_path)
-    
+
     def analyze_requirements(self, requirements: str) -> Dict[str, Any]:
         try:
             messages = [
@@ -19,9 +20,9 @@ class RequirementAnalyzer:
                     "content": f"请分析以下需求：\n{requirements}"
                 }
             ]
-            
+
             result = self.ai_client.chat(messages)
-            
+
             if result.get("success"):
                 analysis_text = result["content"]
                 analysis_result = self._parse_analysis(analysis_text)
@@ -31,13 +32,13 @@ class RequirementAnalyzer:
                     "error": result.get("error", "未知错误"),
                     "success": False
                 }
-                
+
         except Exception as e:
             return {
                 "error": f"需求分析失败: {str(e)}",
                 "success": False
             }
-    
+
     def _parse_analysis(self, analysis_text: str) -> Dict[str, Any]:
         sections = {
             "requirement_breakdown": [],
@@ -45,29 +46,29 @@ class RequirementAnalyzer:
             "technical_requirements": [],
             "acceptance_criteria": []
         }
-        
+
         section_map = {
             "requirement_breakdown": "需求拆解",
             "functional_specs": "功能规格",
             "technical_requirements": "技术要求",
             "acceptance_criteria": "验收标准"
         }
-        
+
         lines = analysis_text.split("\n")
         current_section = None
         pending_items = []
-        
+
         for line in lines:
             line = line.strip()
             if not line:
                 continue
-            
+
             matched_section = None
             for section_key, section_label in section_map.items():
                 if section_label in line:
                     matched_section = section_key
                     break
-            
+
             if matched_section:
                 if pending_items and current_section:
                     sections[current_section].extend(pending_items)
@@ -78,63 +79,63 @@ class RequirementAnalyzer:
                     item = line[2:]
                 else:
                     item = re.sub(r'^\d+\.\s', '', line)
-                
+
                 if current_section:
                     sections[current_section].append(item)
                 else:
                     pending_items.append(item)
-        
+
         if pending_items and current_section:
             sections[current_section].extend(pending_items)
-        
+
         if not any(sections.values()):
             sections["requirement_breakdown"] = [analysis_text]
-        
+
         return {
             "success": True,
             "analysis": sections,
             "raw_analysis": analysis_text
         }
-    
+
     def generate_requirement_document(self, analysis_result: Dict[str, Any], output_path: str):
         if not analysis_result.get("success"):
             print("分析结果无效，无法生成需求文档")
             return False
-        
+
         try:
             analysis = analysis_result.get("analysis", {})
-            
+
             document = "# 需求分析文档\n\n"
-            
+
             document += "## 需求拆解\n"
             for item in analysis.get("requirement_breakdown", []):
                 document += f"- {item}\n"
             document += "\n"
-            
+
             document += "## 功能规格\n"
             for item in analysis.get("functional_specs", []):
                 document += f"- {item}\n"
             document += "\n"
-            
+
             document += "## 技术要求\n"
             for item in analysis.get("technical_requirements", []):
                 document += f"- {item}\n"
             document += "\n"
-            
+
             document += "## 验收标准\n"
             for item in analysis.get("acceptance_criteria", []):
                 document += f"- {item}\n"
-            
+
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(document)
-            
+
             return True
         except Exception as e:
             print(f"生成需求文档失败: {e}")
             return False
-    
+
     def set_provider(self, provider: str):
         self.ai_client.set_provider(provider)
-    
+
     def configure_provider(self, provider: str, **kwargs):
         self.ai_client.configure(provider, **kwargs)
