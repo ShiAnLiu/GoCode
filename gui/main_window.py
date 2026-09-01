@@ -16,12 +16,12 @@ from core.resource_acquisition import ResourceAcquirer
 from core.development import DevelopmentManager
 from core.testing import TestManager
 from core.acceptance import AcceptanceManager
-from utils.api_config import APIConfig, APIProvider
+from utils.api_config import APIConfig
 
 
 class MainWindow(BoxLayout):
     def __init__(self, **kwargs):
-        super(MainWindow, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.orientation = 'vertical'
         self.padding = 10
         self.spacing = 10

@@ -222,7 +222,7 @@ if __name__ == "__main__":
                 all_line_start = existing_init_content.find('[', all_start)
                 all_line_end = existing_init_content.find(']', all_line_start)
                 if all_line_end != -1:
-                    old_exports_str = existing_init_content[all_line_start:all_line_end+1]
+                    old_exports_str = existing_init_content[all_line_start:all_line_end + 1]
                     # 合并导出
                     try:
                         import ast
