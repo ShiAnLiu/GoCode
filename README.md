@@ -35,15 +35,20 @@ gocode init --workspace /path/to/workspace --project-name myproject
 
 # Analyze requirements
 gocode analyze --requirements "Build a web application for task management"
+gocode analyze --requirements "Build a web application for task management" --output requirements.md
+
+# Acquire project resources
+gocode acquire --requirements "Build a web application for task management"
+gocode acquire --requirements "Build a web application for task management" --output-dir resources
 
 # Start development process
-gocode develop
+gocode develop --project-dir /path/to/workspace/myproject --requirements "Build a web application for task management"
 
 # Run tests
-gocode test
+gocode test --project-dir /path/to/workspace/myproject
 
 # Generate acceptance report
-gocode accept
+gocode accept --project-dir /path/to/workspace/myproject --requirements "Build a web application for task management"
 ```
 
 ### Graphical User Interface
