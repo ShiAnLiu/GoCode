@@ -16,8 +16,36 @@ setup(
     include_package_data=True,
     install_requires=[
         'requests>=2.31.0',
-        'pytest>=7.4.3',
     ],
+    extras_require={
+        'gui': [
+            'kivy>=2.3.0',
+        ],
+        'dev': [
+            'pytest>=7.4.3,<9',
+            'sphinx>=7.2.6',
+            'astor==0.8.1',
+            'pycodestyle==2.11.1',
+        ],
+        'crawl': [
+            'beautifulsoup4==4.12.2',
+            'lxml>=5.1.0',
+        ],
+        'security': [
+            'pyjwt==2.8.0',
+        ],
+        'all': [
+            'kivy>=2.3.0',
+            'pytest>=7.4.3,<9',
+            'sphinx>=7.2.6',
+            'beautifulsoup4==4.12.2',
+            'lxml>=5.1.0',
+            'astor==0.8.1',
+            'pycodestyle==2.11.1',
+            'pyjwt==2.8.0',
+            'platformdirs==4.1.0',
+        ],
+    },
     entry_points={
         'console_scripts': [
             'gocode = cli.main:main',
