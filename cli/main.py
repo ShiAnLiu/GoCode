@@ -17,7 +17,7 @@ def main():
     parser = argparse.ArgumentParser(description='gocode - 代码编程工具')
 
     # 子命令解析器
-    subparsers = parser.add_subparsers(dest='command', help='可用命令')
+    subparsers = parser.add_subparsers(dest='command', help='可用命令', required=False)
 
     # init 命令 - 初始化项目
     init_parser = subparsers.add_parser('init', help='初始化新项目')
