@@ -112,11 +112,12 @@ class APIConfig:
 
         api_key = self.get_api_key()
         if api_key:
-            if provider == "openai":
-                headers["Authorization"] = f"Bearer {api_key}"
-            elif provider == "anthropic":
+            if provider == "anthropic":
                 headers["x-api-key"] = api_key
                 headers["anthropic-version"] = "2023-06-01"
+            else:
+                # OpenAI-compatible providers (openai, lmstudio, ollama, custom)
+                headers["Authorization"] = f"Bearer {api_key}"
 
         return headers
 
