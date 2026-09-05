@@ -305,11 +305,9 @@ class MainWindow(BoxLayout):
         model = self.model_input.text
         api_key = self.api_key_input.text
 
-        # Set all config values in memory, then save once
+        # Set active provider in memory, then persist everything in one save
+        self.api_config.config["provider"] = provider
         self.api_config.set_api_config(provider, base_url=base_url, model=model, api_key=api_key)
-        if self.api_config.config.get("provider") != provider:
-            self.api_config.config["provider"] = provider
-            self.api_config.save_config()  # Only save if provider changed too
 
         self.settings_result.text = "设置已保存"
 
