@@ -5,8 +5,8 @@ A code programming tool that automates the entire development process, from proj
 ## Features
 
 - **Project Initialization**: Create standardized project structure in specified workspace directory
-- **Requirement Analysis**: Deep analysis and decomposition of user requirements using local LM Studio service
-- **Resource Acquisition**: Automatic web crawling for project resources with fallback to LM Studio creation
+- **Requirement Analysis**: Deep analysis and decomposition of user requirements using configurable AI providers (LM Studio, Ollama, OpenAI, Anthropic, etc.)
+- **Resource Acquisition**: Automatic web crawling for project resources with fallback to AI creation
 - **Development Implementation**: Modular planning and code generation
 - **Testing and Verification**: Unit testing, boundary condition testing, and system integration testing
 - **Acceptance**: Generate acceptance reports to confirm product functionality
@@ -69,8 +69,10 @@ Configuration files are located in the `config` directory. You can modify the fo
 ## Security
 
 - Strictly limits file system operations to the workspace directory
-- Implements file access permission control
-- Only allows LM Studio API calls during requirement analysis and resource acquisition phases
+- Implements file access permission control via `SecurityManager`
+- `safe_open`, `safe_mkdir`, `safe_remove`, `safe_copy`, and `safe_rename` wrappers prevent path traversal
+- API calls are only made during requirement analysis and resource acquisition phases
+- All external HTTP requests respect configurable timeout values
 
 ## Supported Platforms
 
