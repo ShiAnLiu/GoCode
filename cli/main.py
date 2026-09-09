@@ -1,6 +1,14 @@
 import argparse
 import os
 import sys
+
+# Ensure project root is on sys.path when running this file directly
+# Supports both: `python -m cli.main` and `python cli/main.py`
+_CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+_PROJECT_ROOT = os.path.dirname(_CURRENT_DIR)
+if _PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, _PROJECT_ROOT)
+
 from core.project_init import ProjectInitializer
 from core.requirement_analysis import RequirementAnalyzer
 from core.resource_acquisition import ResourceAcquirer
