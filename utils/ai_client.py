@@ -1,6 +1,6 @@
 import requests
-from typing import Dict, List, Any, Optional
-from utils.api_config import APIConfig, APIProvider
+from typing import Dict, List, Any
+from utils.api_config import APIConfig
 
 
 class AIClient:

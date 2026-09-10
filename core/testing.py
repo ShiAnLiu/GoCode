@@ -1,7 +1,7 @@
 import os
 import sys
 import subprocess
-from typing import Dict, List, Any
+from typing import Dict, Any
 
 
 class TestManager:

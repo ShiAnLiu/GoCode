@@ -113,9 +113,9 @@ class ResourceAcquirer:
                         if response.status_code == 200 and len(response.text) > 500:
                             with open(resource_file, 'w', encoding='utf-8') as f:
                                 f.write(f"Resource: {resource}\n")
-                                f.write(f"Source: web search\n")
+                                f.write("Source: web search\n")
                                 f.write(f"Search URL: {search_url}\n")
-                                f.write(f"Status: Found reference content online\n")
+                                f.write("Status: Found reference content online\n")
                             acquired_resources.append(resource)
                             print(f"  成功获取资源: {resource}")
                             found = True
@@ -136,11 +136,11 @@ class ResourceAcquirer:
         with open(resource_file, 'w', encoding='utf-8') as f:
             f.write(f"Resource: {resource}\n")
             if network_failed:
-                f.write(f"Source: placeholder (network unavailable)\n")
-                f.write(f"Note: Network access failed, will attempt AI generation\n")
+                f.write("Source: placeholder (network unavailable)\n")
+                f.write("Note: Network access failed, will attempt AI generation\n")
             else:
-                f.write(f"Source: placeholder (web search unavailable)\n")
-                f.write(f"Note: Web search returned no results, will attempt AI generation\n")
+                f.write("Source: placeholder (web search unavailable)\n")
+                f.write("Note: Web search returned no results, will attempt AI generation\n")
 
     def _create_resources(self, resource_needs: List[str], output_dir: str) -> List[str]:
         created_resources = []
@@ -183,7 +183,7 @@ class ResourceAcquirer:
         print("以下资源无法自动获取，需要用户手动提供：")
         for resource in resource_needs:
             print(f"  - {resource}")
-            print(f"    请将此资源文件放入对应目录或通过其他方式提供")
+            print("    请将此资源文件放入对应目录或通过其他方式提供")
             user_provided.append(resource)
 
         print(f"\n共 {len(resource_needs)} 个资源需要用户手动提供")

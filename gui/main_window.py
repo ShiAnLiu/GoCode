@@ -1,6 +1,5 @@
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.tabbedpanel import TabbedPanel, TabbedPanelItem
 from kivy.uix.button import Button
 from kivy.uix.label import Label
@@ -442,7 +441,7 @@ class MainWindow(BoxLayout):
                 created_resources = result.get('created_resources', [])
                 user_provided_resources = result.get('user_provided_resources', [])
 
-                output = f"资源获取完成\n"
+                output = "资源获取完成\n"
                 output += f"网络获取的资源: {len(network_resources)}\n"
                 output += f"创作的资源: {len(created_resources)}\n"
                 output += f"用户提供的资源: {len(user_provided_resources)}\n\n"
@@ -485,7 +484,7 @@ class MainWindow(BoxLayout):
 
             if result.get('success'):
                 modules = result.get('modules', [])
-                output = f"开发实施完成\n"
+                output = "开发实施完成\n"
                 output += f"实现的模块数: {len(modules)}\n\n"
                 output += "实现的模块:\n" + '\n'.join(f"- {m['name']}: {m['description']}" for m in modules)
                 self.develop_result.text = output
@@ -510,7 +509,7 @@ class MainWindow(BoxLayout):
                 boundary_success = result.get('boundary_tests', {}).get('success', False)
                 integration_success = result.get('integration_tests', {}).get('success', False)
 
-                output = f"测试执行完成\n"
+                output = "测试执行完成\n"
                 output += f"单元测试: {'通过' if unit_success else '失败'}\n"
                 output += f"边界条件测试: {'通过' if boundary_success else '失败'}\n"
                 output += f"系统集成测试: {'通过' if integration_success else '失败'}\n\n"

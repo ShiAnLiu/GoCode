@@ -214,7 +214,6 @@ if __name__ == "__main__":
 
         if existing_init_content and not existing_init_content.strip().startswith('# AUTO'):
             # 有用户手工编辑过的内容，追加新模块
-            extra = "\n" + "\n".join(new_imports) + "\n\n"
             # 更新 __all__ 列表
             all_start = existing_init_content.find('__all__')
             if all_start != -1:
@@ -261,24 +260,24 @@ if __name__ == "__main__":
         code += 'from typing import Any, Dict, List, Optional\n\n\n'
         code += f'class {class_name}:\n'
         code += f'    """{docstring}"""\n\n'
-        code += f'    def __init__(self, **kwargs: Any) -> None:\n'
-        code += f'        self.config = kwargs\n'
-        code += f'        self._initialized = False\n'
-        code += f'        self._data: Dict[str, Any] = {{}}\n\n'
+        code += '    def __init__(self, **kwargs: Any) -> None:\n'
+        code += '        self.config = kwargs\n'
+        code += '        self._initialized = False\n'
+        code += '        self._data: Dict[str, Any] = {}\n\n'
 
         if method_names:
             for i, method_name in enumerate(method_names):
                 code += f'    def {method_name}(self, *args: Any, **kwargs: Any) -> Any:\n'
                 code += f'        """TODO: Implement {method_name} for {module_name}."""\n'
-                code += f'        raise NotImplementedError(\n'
+                code += '        raise NotImplementedError(\n'
                 code += f'            f"{class_name}.{method_name}() is not implemented yet"\n'
-                code += f'        )\n\n'
+                code += '        )\n\n'
         else:
-            code += f'    def execute(self, *args: Any, **kwargs: Any) -> Any:\n'
+            code += '    def execute(self, *args: Any, **kwargs: Any) -> Any:\n'
             code += f'        """Main execution method for {module_name}."""\n'
-            code += f'        raise NotImplementedError(\n'
+            code += '        raise NotImplementedError(\n'
             code += f'            f"{class_name}.execute() is not implemented yet"\n'
-            code += f'        )\n\n'
+            code += '        )\n\n'
 
         code += f'\n\ndef create_{module_name}(**kwargs: Any) -> "{class_name}":\n'
         code += f'    """Factory function for {module_name}."""\n'

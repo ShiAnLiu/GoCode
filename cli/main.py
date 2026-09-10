@@ -9,12 +9,12 @@ _PROJECT_ROOT = os.path.dirname(_CURRENT_DIR)
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
-from core.project_init import ProjectInitializer
-from core.requirement_analysis import RequirementAnalyzer
-from core.resource_acquisition import ResourceAcquirer
-from core.development import DevelopmentManager
-from core.testing import TestManager
-from core.acceptance import AcceptanceManager
+from core.project_init import ProjectInitializer  # noqa: E402
+from core.requirement_analysis import RequirementAnalyzer  # noqa: E402
+from core.resource_acquisition import ResourceAcquirer  # noqa: E402
+from core.development import DevelopmentManager  # noqa: E402
+from core.testing import TestManager  # noqa: E402
+from core.acceptance import AcceptanceManager  # noqa: E402
 
 
 def main():
@@ -57,7 +57,7 @@ def main():
     accept_parser.add_argument('--requirements', required=True, help='需求文本')
 
     # gui 命令 - 启动图形界面
-    gui_parser = subparsers.add_parser('gui', help='启动图形界面')
+    subparsers.add_parser('gui', help='启动图形界面')
 
     # 解析参数
     args = parser.parse_args()
@@ -128,7 +128,7 @@ def handle_acquire(args):
         result = acquirer.acquire_resources(args.requirements, args.output_dir)
 
         if result.get('success'):
-            print(f"资源获取完成")
+            print("资源获取完成")
             print(f"网络获取的资源: {len(result.get('network_resources', []))}")
             print(f"创作的资源: {len(result.get('created_resources', []))}")
             print(f"用户提供的资源: {len(result.get('user_provided_resources', []))}")
@@ -156,7 +156,7 @@ def handle_develop(args):
         result = manager.develop(analysis_result)
 
         if result.get('success'):
-            print(f"开发实施完成")
+            print("开发实施完成")
             print(f"实现的模块数: {len(result.get('modules', []))}")
         else:
             print(f"开发实施失败: {result.get('error')}")
@@ -174,7 +174,7 @@ def handle_test(args):
         result = test_manager.run_tests()
 
         if result.get('success'):
-            print(f"测试执行完成")
+            print("测试执行完成")
             print(f"单元测试: {'通过' if result.get('unit_tests', {}).get('success') else '失败'}")
             print(f"边界条件测试: {'通过' if result.get('boundary_tests', {}).get('success') else '失败'}")
             print(f"系统集成测试: {'通过' if result.get('integration_tests', {}).get('success') else '失败'}")
