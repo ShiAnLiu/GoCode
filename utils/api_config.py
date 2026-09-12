@@ -158,16 +158,22 @@ class APIConfig:
                     return content
                 return ""
             elif provider == "ollama":
-                # Ollama may return different formats
-                message = response_data.get("message", {})
-                if isinstance(message, dict):
-                    return message.get("content", "")
-                # Some Ollama responses use the choices format
+                # Ollama's OpenAI-compatible endpoint (/v1/chat/completions)
+                # returns the standard "choices" format. The older /api/chat
+                # endpoint returns a top-level "message" object. Handle both,
+                # preferring "choices" since that is what get_api_url() targets.
                 choices = response_data.get("choices", [])
                 if choices and isinstance(choices, list):
                     message = choices[0].get("message", {})
                     if isinstance(message, dict):
-                        return message.get("content", "")
+                        content = message.get("content")
+                        if content:
+                            return content
+                message = response_data.get("message", {})
+                if isinstance(message, dict):
+                    content = message.get("content")
+                    if content:
+                        return content
                 return None
             else:
                 # Standard OpenAI-compatible format

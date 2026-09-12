@@ -1,6 +1,6 @@
 import os
 import pathlib
-from typing import Optional, TextIO
+from typing import IO, Optional, Union
 
 
 def _is_relative_to(target: pathlib.Path, base: pathlib.Path) -> bool:
@@ -69,7 +69,7 @@ class SecurityManager:
             print(f"检查目录访问权限时出错: {e}")
             return False
 
-    def safe_open(self, file_path: str, mode: str = 'r') -> Optional[TextIO]:
+    def safe_open(self, file_path: str, mode: str = 'r') -> Optional[Union[IO[str], IO[bytes]]]:
         """
         安全打开文件
 
