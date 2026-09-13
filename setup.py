@@ -14,6 +14,9 @@ setup(
     url='https://github.com/ShiAnLiu/GoCode',
     packages=find_packages(),
     include_package_data=True,
+    package_data={
+        'config': ['*.json'],
+    },
     install_requires=[
         'requests>=2.31.0',
     ],
