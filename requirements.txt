@@ -1,19 +1,9 @@
-# 核心依赖
-requests==2.31.0
-kivy>=2.3.0
-pytest>=7.4.3,<9
-sphinx>=7.2.6
+# 核心依赖 (Core dependencies)
+requests>=2.31.0
 
-# 网络爬虫依赖
-beautifulsoup4==4.12.2
-lxml>=5.1.0
-
-# 代码生成和分析依赖
-astor==0.8.1
-pycodestyle==2.11.1
-
-# 安全依赖
-pyjwt==2.8.0
-
-# 跨平台支持
-platformdirs==4.1.0
+# 可选依赖 - 请根据需要使用 pip install -e ".[gui|dev|crawl|security|all]" 安装
+# GUI 图形界面依赖: kivy>=2.3.0
+# 开发依赖: pytest>=7.4.3,<9  sphinx>=7.2.6  astor==0.8.1  pycodestyle==2.11.1
+# 网络爬虫依赖: beautifulsoup4==4.12.2  lxml>=5.1.0
+# 安全依赖: pyjwt==2.8.0
+# 跨平台支持: platformdirs==4.1.0
