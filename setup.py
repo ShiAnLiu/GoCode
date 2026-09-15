@@ -26,9 +26,11 @@ setup(
         ],
         'dev': [
             'pytest>=7.4.3,<9',
+            'pytest-cov>=4.1.0',
             'sphinx>=7.2.6',
             'astor==0.8.1',
             'pycodestyle==2.11.1',
+            'flake8>=7.0.0',
         ],
         'crawl': [
             'beautifulsoup4==4.12.2',
@@ -40,6 +42,7 @@ setup(
         'all': [
             'kivy>=2.3.0',
             'pytest>=7.4.3,<9',
+            'pytest-cov>=4.1.0',
             'sphinx>=7.2.6',
             'beautifulsoup4==4.12.2',
             'lxml>=5.1.0',
@@ -47,6 +50,7 @@ setup(
             'pycodestyle==2.11.1',
             'pyjwt==2.8.0',
             'platformdirs==4.1.0',
+            'flake8>=7.0.0',
         ],
     },
     entry_points={
