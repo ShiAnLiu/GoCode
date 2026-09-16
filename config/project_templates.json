@@ -1,0 +1,23 @@
+{
+    "python_project": {
+        "name": "Python项目",
+        "description": "标准Python项目模板",
+        "directories": ["src", "tests", "docs", "config", "scripts", "assets"],
+        "src_subdirs": ["core", "utils", "api", "ui"],
+        "files": ["README.md", "requirements.txt", "setup.py"]
+    },
+    "web_project": {
+        "name": "Web项目",
+        "description": "Web应用项目模板",
+        "directories": ["src", "tests", "docs", "config", "static", "templates"],
+        "src_subdirs": ["core", "utils", "api", "views", "models"],
+        "files": ["README.md", "requirements.txt", "app.py"]
+    },
+    "data_project": {
+        "name": "数据项目",
+        "description": "数据分析项目模板",
+        "directories": ["src", "tests", "docs", "config", "data", "notebooks"],
+        "src_subdirs": ["core", "utils", "processing", "analysis", "visualization"],
+        "files": ["README.md", "requirements.txt", "main.py"]
+    }
+}

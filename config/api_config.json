@@ -1,0 +1,25 @@
+{
+    "provider": "lmstudio",
+    "openai": {
+        "api_key": "",
+        "base_url": "https://api.openai.com/v1",
+        "model": "gpt-3.5-turbo"
+    },
+    "anthropic": {
+        "api_key": "",
+        "base_url": "https://api.anthropic.com",
+        "model": "claude-3-sonnet-20240229"
+    },
+    "lmstudio": {
+        "base_url": "http://localhost:1234/v1",
+        "model": "qwen2-0.5b-instruct"
+    },
+    "ollama": {
+        "base_url": "http://localhost:11434/v1",
+        "model": "llama2"
+    },
+    "custom": {
+        "base_url": "",
+        "model": ""
+    }
+}
