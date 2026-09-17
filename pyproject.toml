@@ -7,7 +7,7 @@ name = "gocode"
 version = "0.1.0"
 description = "A code programming tool that automates the entire development process"
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
     {name = "gocode Team", email = "gocode@example.com"},
