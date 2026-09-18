@@ -1,6 +1,6 @@
 import os
 import json
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from enum import Enum
 
 
@@ -86,6 +86,32 @@ class APIConfig:
             return f"{base_url.rstrip('/')}/chat/completions"
         else:
             return f"{base_url.rstrip('/')}/chat/completions"
+
+    def validate_config(self) -> Dict[str, Any]:
+        """
+        验证当前 API 配置是否完整可用
+
+        Returns:
+            Dict: 包含 success 和 error 信息的验证结果
+        """
+        provider = self.get_provider()
+        provider_config = self.config.get(provider, {})
+        base_url = provider_config.get("base_url", "")
+        model = provider_config.get("model", "")
+
+        errors = []
+        if not base_url:
+            errors.append(f"API地址未配置 (提供商: {provider})")
+        if not model:
+            errors.append(f"模型名称未配置 (提供商: {provider})")
+
+        return {
+            "success": len(errors) == 0,
+            "errors": errors,
+            "provider": provider,
+            "base_url": base_url,
+            "model": model,
+        }
 
     def get_model(self) -> str:
         provider = self.get_provider()
