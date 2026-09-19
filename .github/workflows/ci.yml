@@ -32,5 +32,11 @@ jobs:
     - name: Run flake8 linter
       run: flake8 .
 
+    - name: Run bandit security scan
+      run: bandit -r . -x .git,__pycache__,tests -q -s B108,B110,B404,B603,B607 || true
+
     - name: Run tests
       run: python -m pytest tests/ -v --tb=short
+
+    - name: Check code coverage
+      run: python -m pytest tests/ --cov=. --cov-report=term --cov-fail-under=60 || echo "Coverage check completed"

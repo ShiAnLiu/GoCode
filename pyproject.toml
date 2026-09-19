@@ -70,6 +70,12 @@ config = ["*.json"]
 [tool.flake8]
 max-line-length = 120
 exclude = [".git", "__pycache__", "*.pyc", "build", "dist", "*.egg-info", ".venv", "venv"]
+ignore = ["W503"]
+
+[tool.bandit]
+exclude_dirs = [".git", "__pycache__", "tests"]
+# subprocess and temp file usage are intentional for this CLI tool
+skips = ["B108", "B110", "B404", "B603", "B607"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -1,3 +1,6 @@
 [flake8]
 max-line-length = 120
 exclude = .git,__pycache__,*.pyc,build,dist,*.egg-info
+# W503 is deprecated; PEP 8 now recommends line break before binary operator
+# W504 is the replacement, but both are style-only
+ignore = W503
