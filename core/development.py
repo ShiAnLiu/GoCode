@@ -199,7 +199,7 @@ if __name__ == "__main__":
                 with open(init_path, 'r', encoding='utf-8') as f:
                     existing_init_content = f.read()
             except Exception:
-                pass
+                pass  # noqa: B110 - init file may not be readable; fall back to empty content
 
         # 生成新导出列表
         new_imports = []
