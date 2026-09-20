@@ -1,4 +1,6 @@
 import json
+import shutil
+import subprocess
 from pathlib import Path
 
 
@@ -172,30 +174,34 @@ pytest_cache/
             f.write(gitignore_content)
 
         # 尝试初始化git仓库
+        git_bin = shutil.which('git')
+        if not git_bin:
+            print("git 未安装，跳过版本控制初始化")
+            return
+
         try:
-            import subprocess
-            subprocess.run(['git', 'init'], cwd=str(self.project_dir), capture_output=True, check=True)
+            subprocess.run([git_bin, 'init'], cwd=str(self.project_dir), capture_output=True, check=True)
 
             # 设置本地git用户配置（如果全局未配置），确保首次提交能成功
             try:
                 subprocess.run(
-                    ['git', 'config', 'user.name', 'gocode'],
+                    [git_bin, 'config', 'user.name', 'gocode'],
                     cwd=str(self.project_dir),
                     capture_output=True,
                     check=True
                 )
                 subprocess.run(
-                    ['git', 'config', 'user.email', 'gocode@localhost'],
+                    [git_bin, 'config', 'user.email', 'gocode@localhost'],
                     cwd=str(self.project_dir),
                     capture_output=True,
                     check=True
                 )
             except Exception:
                 # 忽略设置失败，继续尝试
-                pass
+                pass  # noqa: B110
 
-            subprocess.run(['git', 'add', '.'], cwd=str(self.project_dir), capture_output=True, check=True)
-            subprocess.run(['git', 'commit', '-m', 'Initial commit'],
+            subprocess.run([git_bin, 'add', '.'], cwd=str(self.project_dir), capture_output=True, check=True)
+            subprocess.run([git_bin, 'commit', '-m', 'Initial commit'],
                            cwd=str(self.project_dir), capture_output=True, check=True)
         except Exception as e:
             print(f"初始化git仓库失败: {e}")
