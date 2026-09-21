@@ -1,6 +1,6 @@
 import os
 import sys
-import subprocess
+import subprocess  # nosec B404
 from typing import Dict, Any
 
 
@@ -27,7 +27,7 @@ class TestManager:
         try:
             result = subprocess.run(
                 [sys.executable, '-m', 'pytest', '--version'],
-                capture_output=True, text=True, timeout=10
+                capture_output=True, text=True, timeout=10  # nosec B603
             )
             if result.returncode != 0:
                 print("警告: pytest 未安装。请运行 'pip install pytest' 安装后再执行测试。")
@@ -350,7 +350,7 @@ class TestManager:
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120  # nosec B603
             )
 
             return {
@@ -379,7 +379,7 @@ class TestManager:
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120  # nosec B603
             )
 
             return {
@@ -408,7 +408,7 @@ class TestManager:
                 cwd=self.project_dir,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=120  # nosec B603
             )
 
             return {

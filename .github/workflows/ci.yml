@@ -32,5 +32,8 @@ jobs:
     - name: Run flake8 linter
       run: flake8 .
 
+    - name: Run bandit security scan
+      run: bandit -r cli core utils tests -ll
+
     - name: Run tests
       run: python -m pytest tests/ -v --tb=short

@@ -199,7 +199,8 @@ if __name__ == "__main__":
                 with open(init_path, 'r', encoding='utf-8') as f:
                     existing_init_content = f.read()
             except Exception:
-                pass
+                # 读失败则当作空内容处理，让后续逻辑按无现有文件走
+                pass  # nosec B110
 
         # 生成新导出列表
         new_imports = []

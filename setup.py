@@ -31,6 +31,7 @@ setup(
             'astor==0.8.1',
             'pycodestyle==2.11.1',
             'flake8>=7.0.0',
+            'bandit>=1.7.5',
         ],
         'crawl': [
             'beautifulsoup4==4.12.2',
@@ -51,6 +52,7 @@ setup(
             'pyjwt==2.8.0',
             'platformdirs==4.1.0',
             'flake8>=7.0.0',
+            'bandit>=1.7.5',
         ],
     },
     entry_points={

@@ -66,7 +66,8 @@ class TestSecurityManager(unittest.TestCase):
         self.assertTrue(os.path.isdir(dir_path))
 
     def test_safe_mkdir_outside_workspace_fails(self):
-        self.assertFalse(self.sm.safe_mkdir("/tmp/should_not_exist_xyz"))
+        outside_dir = os.path.join(tempfile.gettempdir(), "should_not_exist_xyz")
+        self.assertFalse(self.sm.safe_mkdir(outside_dir))
 
     def test_safe_remove(self):
         path = os.path.join(self.workspace, "to_remove.txt")
